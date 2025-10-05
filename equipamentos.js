@@ -3,7 +3,7 @@ const firebaseConfig = {
     apiKey: "AIzaSyC5p_Bcaxs_075-Av-dKFoNfqVjXUZP9a0",
     authDomain: "prosul-equipamentos.firebaseapp.com",
     projectId: "prosul-equipamentos",
-    storageBucket: "prosul-equipamentos.firebasestorage.app",
+    storageBucket: "prosul-equipamentos.appspot.com", // corrigido
     messagingSenderId: "799195941543",
     appId: "1:799195941543:web:8eb0e9e3f83c980e302982"
 };
@@ -22,7 +22,6 @@ let estado = {
 // ======= INICIALIZAÇÃO FIREBASE =======
 function inicializarFirebase() {
     try {
-        // Verificar se Firebase já foi inicializado
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -31,6 +30,7 @@ function inicializarFirebase() {
         return true;
     } catch (error) {
         console.error('❌ Erro ao inicializar Firebase:', error);
+        alert('❌ Não foi possível conectar ao Firebase. Dados serão salvos localmente.');
         return false;
     }
 }
@@ -45,12 +45,12 @@ async function carregarDados() {
     try {
         console.log('📥 Carregando dados do Firebase...');
         const snapshot = await db.collection('equipamentos').get();
-        
+
         if (snapshot.empty) {
             console.log('📭 Nenhum dado encontrado no Firebase');
             return carregarDadosLocais();
         }
-        
+
         const dados = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         console.log(`✅ ${dados.length} itens carregados do Firebase`);
         return dados;
@@ -62,9 +62,8 @@ async function carregarDados() {
 }
 
 async function salvarDados() {
-    // Sempre salvar localmente primeiro
     salvarDadosLocais();
-    
+
     if (!db) {
         console.log('⚠️ Firebase não disponível, salvando apenas localmente');
         return true;
@@ -72,26 +71,19 @@ async function salvarDados() {
 
     try {
         console.log('💾 Tentando salvar no Firebase...');
-        
-        // Buscar documentos existentes
         const snapshot = await db.collection('equipamentos').get();
         const batch = db.batch();
-        
-        // Limpar documentos existentes
-        snapshot.docs.forEach(doc => {
-            batch.delete(doc.ref);
-        });
-        await batch.commit();
-        console.log('🗑️ Documentos antigos removidos');
 
-        // Salvar novos documentos
+        snapshot.docs.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+
         const newBatch = db.batch();
         usuarios.forEach(usuario => {
             const docRef = db.collection('equipamentos').doc(usuario.anydesk);
             newBatch.set(docRef, usuario);
         });
         await newBatch.commit();
-        
+
         console.log(`✅ ${usuarios.length} itens salvos no Firebase`);
         return true;
     } catch (error) {
@@ -101,7 +93,7 @@ async function salvarDados() {
     }
 }
 
-// ======= FUNÇÕES LOCAIS (FALLBACK) =======
+// ======= FUNÇÕES LOCAIS =======
 function carregarDadosLocais() {
     try {
         const dadosSalvos = localStorage.getItem('equipamentosProsul');
@@ -126,6 +118,8 @@ function salvarDadosLocais() {
         return false;
     }
 }
+
+
 
 // ======= ELEMENTOS DOM =======
 const elementos = {
@@ -168,18 +162,14 @@ const elementos = {
 // ======= INICIALIZAÇÃO =======
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('🚀 Iniciando aplicação...');
-    
-    // Inicializar Firebase
     const firebaseInicializado = inicializarFirebase();
-    
-    // Carregar dados (tenta Firebase primeiro, depois local)
     usuarios = await carregarDados();
     estado.dadosFiltrados = [...usuarios];
-    
+
     renderizarTabela();
     configurarEventListeners();
     configurarModalKit();
-    
+
     console.log(`🎯 Aplicação iniciada com ${usuarios.length} usuários`);
     console.log(`🌐 Firebase: ${firebaseInicializado ? 'CONECTADO' : 'OFFLINE'}`);
 });
