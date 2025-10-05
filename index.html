@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle de Licenças | PROSUL</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- ======= CABEÇALHO ======= -->
+  <header class="header">
+    <div class="header-container">
+      <div class="logo-area">
+        <!-- SUA LOGO REAL - sem texto PROSUL -->
+        <img src="img/prosul_logo.png" alt="PROSUL" class="logo">
+      </div>
+
+      <nav class="nav-menu">
+  <ul class="nav-list">
+    <li><a href="index.html" class="nav-link active">Controle de Licenças</a></li>
+    <li><a href="equipamentos.html" class="nav-link">Controle de Equipamentos</a></li>
+    <li><a href="graficos.html" class="nav-link">Gráficos</a></li>
+  </ul>
+</nav>
+    </div>
+  </header>
+
+  <!-- ======= CONTEÚDO PRINCIPAL ======= -->
+  <main class="main-content">
+    <section class="container">
+      <h1 class="page-title">Controle de Licenças</h1>
+      <p class="page-description">Visualize, edite e gerencie licenças de software de forma simples e prática.</p>
+
+      <!-- Área de Pesquisa e Filtros -->
+      <div class="filter-section">
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Pesquisa na Licença" class="search-input">
+          <button type="button" class="search-btn">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+        
+        <div class="filter-box">
+          <select id="statusFilter">
+            <option value="Todos">Status das Licenças</option>
+            <option value="Ativa">Ativa</option>
+            <option value="Expirada">Expirada</option>
+            <option value="Em Renovação">Em Renovação</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Tabela de Licenças -->
+      <div class="table-container">
+        <table id="tabelaLicencas" class="licenses-table">
+          <thead>
+            <tr>
+              <th>SOFTWARE</th>
+              <th>VERSÃO</th>
+              <th>Nº DE LICENÇAS</th>
+              <th>ÚLTIMA MODIFICAÇÃO</th>
+              <th>AÇÕES</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <!-- Dados serão carregados via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Modal de Visualização/Edição -->
+    <div id="modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modalTitle">Visualizar Licença</h2>
+          <button type="button" class="close-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <form id="formLicenca">
+            <div class="form-group">
+              <label for="modalSoftware">Software</label>
+              <input type="text" id="modalSoftware" class="form-input" disabled>
+            </div>
+            
+            <div class="form-group">
+              <label for="modalVersao">Versão</label>
+              <input type="text" id="modalVersao" class="form-input" disabled>
+            </div>
+            
+            <div class="form-group">
+              <label for="modalLicencas">Nº de Licenças</label>
+              <input type="number" id="modalLicencas" class="form-input" disabled min="1">
+            </div>
+            
+            <div class="form-group">
+              <label for="modalData">Última Modificação</label>
+              <input type="text" id="modalData" class="form-input" readonly>
+            </div>
+            
+            <div class="modal-actions">
+              <button type="button" id="salvarBtn" class="btn btn-primary">Salvar</button>
+              <button type="button" id="cancelarBtn" class="btn btn-secondary">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notificação de Sucesso -->
+    <div id="alertaSucesso" class="notification">
+      <i class="fas fa-check-circle"></i>
+      <span>Licença atualizada com sucesso!</span>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

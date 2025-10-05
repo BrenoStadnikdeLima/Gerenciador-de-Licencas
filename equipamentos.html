@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle de Equipamentos | PROSUL</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- ======= CABEÇALHO ======= -->
+  <header class="header">
+    <div class="header-container">
+      <div class="logo-area">
+        <img src="img/prosul_logo.png" alt="PROSUL" class="logo">
+      </div>
+
+      <nav class="nav-menu">
+        <ul class="nav-list">
+          <li><a href="index.html" class="nav-link">Controle de Licenças</a></li>
+          <li><a href="equipamentos.html" class="nav-link active">Controle de Equipamentos</a></li>
+          <li><a href="graficos.html" class="nav-link">Gráficos</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ======= CONTEÚDO PRINCIPAL ======= -->
+  <main class="main-content">
+    <section class="container">
+      <h1 class="page-title">Controle de Equipamentos</h1>
+      <p class="page-description">Gerencie todos os equipamentos da empresa de forma centralizada e eficiente.</p>
+
+      <!-- Área de Pesquisa e Filtros -->
+      <div class="filter-section">
+        <div class="search-box">
+          <input type="text" id="searchInputEquipamentos" placeholder="Pesquisar equipamento" class="search-input">
+          <button type="button" class="search-btn">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+        
+        <div class="filter-box">
+          <select id="statusFilterEquipamentos">
+            <option value="Todos">Status do Equipamento</option>
+            <option value="Ativo">Ativo</option>
+            <option value="Manutenção">Em Manutenção</option>
+            <option value="Inativo">Inativo</option>
+          </select>
+        </div>
+
+        <div class="filter-box">
+          <select id="tipoFilterEquipamentos">
+            <option value="Todos">Tipo de Equipamento</option>
+            <option value="Notebook">Notebook</option>
+            <option value="Desktop">Desktop</option>
+            <option value="Monitor">Monitor</option>
+            <option value="Impressora">Impressora</option>
+            <option value="Servidor">Servidor</option>
+          </select>
+        </div>
+
+        <!-- BOTÃO ADICIONAR -->
+        <div class="action-buttons">
+          <button type="button" id="adicionarEquipamento" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Adicionar Equipamento
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabela de Equipamentos -->
+      <div class="table-container">
+        <table id="tabelaEquipamentos" class="licenses-table">
+          <thead>
+            <tr>
+              <th>EQUIPAMENTO</th>
+              <th>TIPO</th>
+              <th>Nº SÉRIE</th>
+              <th>DEPARTAMENTO</th>
+              <th>STATUS</th>
+              <th>ÚLTIMA ATUALIZAÇÃO</th>
+              <th>AÇÕES</th>
+            </tr>
+          </thead>
+          <tbody id="tableBodyEquipamentos">
+            <!-- Dados serão carregados via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Modal de Visualização/Edição -->
+    <div id="modalEquipamentos" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modalTitleEquipamentos">Visualizar Equipamento</h2>
+          <button type="button" class="close-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <form id="formEquipamento">
+            <div class="form-group">
+              <label for="modalEquipamentoNome">Nome do Equipamento *</label>
+              <input type="text" id="modalEquipamentoNome" class="form-input" placeholder="Digite o nome do equipamento">
+            </div>
+            
+            <div class="form-group">
+              <label for="modalEquipamentoTipo">Tipo *</label>
+              <select id="modalEquipamentoTipo" class="form-input">
+                <option value="">Selecione o tipo</option>
+                <option value="Notebook">Notebook</option>
+                <option value="Desktop">Desktop</option>
+                <option value="Monitor">Monitor</option>
+                <option value="Impressora">Impressora</option>
+                <option value="Servidor">Servidor</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="modalEquipamentoSerie">Nº de Série *</label>
+              <input type="text" id="modalEquipamentoSerie" class="form-input" placeholder="Digite o número de série">
+            </div>
+            
+            <div class="form-group">
+              <label for="modalEquipamentoDepartamento">Departamento *</label>
+              <input type="text" id="modalEquipamentoDepartamento" class="form-input" placeholder="Digite o departamento">
+            </div>
+            
+            <div class="form-group">
+              <label for="modalEquipamentoStatus">Status *</label>
+              <select id="modalEquipamentoStatus" class="form-input">
+                <option value="">Selecione o status</option>
+                <option value="Ativo">Ativo</option>
+                <option value="Manutenção">Em Manutenção</option>
+                <option value="Inativo">Inativo</option>
+              </select>
+            </div>
+            
+            <div class="modal-actions">
+              <button type="button" id="salvarBtnEquipamentos" class="btn btn-primary">Salvar</button>
+              <button type="button" id="cancelarBtnEquipamentos" class="btn btn-secondary">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notificação de Sucesso -->
+    <div id="alertaSucessoEquipamentos" class="notification">
+      <i class="fas fa-check-circle"></i>
+      <span id="notificationTextEquipamentos"></span>
+    </div>
+  </main>
+
+  <script src="equipamentos.js"></script>
+</body>
+</html>
