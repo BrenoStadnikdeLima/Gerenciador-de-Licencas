@@ -70,7 +70,27 @@ const elementos = {
     modalEquipamentoDepartamento: document.getElementById("modalEquipamentoDepartamento"),
     modalEquipamentoStatus: document.getElementById("modalEquipamentoStatus"),
     closeModal: document.querySelector("#modalEquipamentos .close-modal"),
-    btnAdicionar: document.getElementById("adicionarEquipamento")
+    btnAdicionar: document.getElementById("adicionarEquipamento"),
+    // Elementos do Relatório
+    modalRelatorio: document.getElementById("modalRelatorio"),
+    btnGerarRelatorio: document.getElementById("gerarRelatorio"),
+    filtroRelatorio: document.getElementById("filtroRelatorio"),
+    grupoFiltroEspecifico: document.getElementById("grupoFiltroEspecifico"),
+    labelFiltroEspecifico: document.getElementById("labelFiltroEspecifico"),
+    filtroEspecifico: document.getElementById("filtroEspecifico"),
+    ordenacaoRelatorio: document.getElementById("ordenacaoRelatorio"),
+    btnVisualizarRelatorio: document.getElementById("visualizarRelatorio"),
+    btnImprimirRelatorio: document.getElementById("imprimirRelatorio"),
+    btnCancelarRelatorio: document.getElementById("cancelarRelatorio"),
+    areaRelatorio: document.getElementById("areaRelatorio"),
+    dataRelatorio: document.getElementById("dataRelatorio"),
+    filtroAplicado: document.getElementById("filtroAplicado"),
+    totalEquipamentos: document.getElementById("totalEquipamentos"),
+    totalAtivos: document.getElementById("totalAtivos"),
+    totalManutencao: document.getElementById("totalManutencao"),
+    totalInativos: document.getElementById("totalInativos"),
+    corpoRelatorio: document.getElementById("corpoRelatorio"),
+    dataGeracao: document.getElementById("dataGeracao")
 };
 
 // Estado da aplicação
@@ -108,10 +128,23 @@ function configurarEventListeners() {
     // Botão Adicionar
     elementos.btnAdicionar.addEventListener("click", abrirModalAdicionar);
     
+    // Relatório
+    elementos.btnGerarRelatorio.addEventListener("click", abrirModalRelatorio);
+    elementos.filtroRelatorio.addEventListener("change", configurarFiltroRelatorio);
+    elementos.btnVisualizarRelatorio.addEventListener("click", gerarRelatorio);
+    elementos.btnImprimirRelatorio.addEventListener("click", imprimirRelatorio);
+    elementos.btnCancelarRelatorio.addEventListener("click", fecharModalRelatorio);
+    
     // Fechar modal ao clicar fora
     elementos.modal.addEventListener("click", function(e) {
         if (e.target === elementos.modal) {
             fecharModal();
+        }
+    });
+    
+    elementos.modalRelatorio.addEventListener("click", function(e) {
+        if (e.target === elementos.modalRelatorio) {
+            fecharModalRelatorio();
         }
     });
     
@@ -121,8 +154,14 @@ function configurarEventListeners() {
             if (elementos.modal.style.display === "flex") {
                 fecharModal();
             }
+            if (elementos.modalRelatorio.style.display === "flex") {
+                fecharModalRelatorio();
+            }
         }
     });
+    
+    // Fechar modal de relatório
+    elementos.modalRelatorio.querySelector('.close-modal').addEventListener('click', fecharModalRelatorio);
 }
 
 // ======= RENDERIZAÇÃO DA TABELA =======
@@ -325,6 +364,8 @@ function cancelarEdicaoInline() {
 
 // ======= FILTROS E PESQUISA =======
 function filtrarEquipamentos() {
+    esconderRelatorio();
+    
     const termo = elementos.searchInput.value.toLowerCase();
     const status = elementos.statusFilter.value;
     const tipo = elementos.tipoFilter.value;
@@ -477,6 +518,133 @@ function salvarEquipamento() {
     salvarDados();
     renderizarTabela();
     fecharModal();
+}
+
+// ======= RELATÓRIOS =======
+function abrirModalRelatorio() {
+    elementos.modalRelatorio.style.display = 'flex';
+    configurarFiltroRelatorio();
+}
+
+function fecharModalRelatorio() {
+    elementos.modalRelatorio.style.display = 'none';
+}
+
+function configurarFiltroRelatorio() {
+    const filtro = elementos.filtroRelatorio.value;
+    elementos.grupoFiltroEspecifico.style.display = filtro === 'todos' ? 'none' : 'block';
+    
+    // Limpar opções anteriores
+    elementos.filtroEspecifico.innerHTML = '';
+    
+    if (filtro === 'tipo') {
+        elementos.labelFiltroEspecifico.textContent = 'Tipo:';
+        const tipos = [...new Set(equipamentos.map(e => e.tipo))];
+        tipos.forEach(tipo => {
+            const option = document.createElement('option');
+            option.value = tipo;
+            option.textContent = tipo;
+            elementos.filtroEspecifico.appendChild(option);
+        });
+    } else if (filtro === 'status') {
+        elementos.labelFiltroEspecifico.textContent = 'Status:';
+        const status = ['Ativo', 'Manutenção', 'Inativo'];
+        status.forEach(s => {
+            const option = document.createElement('option');
+            option.value = s;
+            option.textContent = s;
+            elementos.filtroEspecifico.appendChild(option);
+        });
+    } else if (filtro === 'departamento') {
+        elementos.labelFiltroEspecifico.textContent = 'Departamento:';
+        const departamentos = [...new Set(equipamentos.map(e => e.departamento))];
+        departamentos.forEach(depto => {
+            const option = document.createElement('option');
+            option.value = depto;
+            option.textContent = depto;
+            elementos.filtroEspecifico.appendChild(option);
+        });
+    }
+}
+
+// ======= FUNÇÃO ATUALIZADA PARA RELATÓRIO =======
+function gerarRelatorio() {
+    const filtro = elementos.filtroRelatorio.value;
+    const filtroEspecifico = elementos.filtroEspecifico.value;
+    const ordenacao = elementos.ordenacaoRelatorio.value;
+    
+    // 1. Filtrar dados
+    let dadosRelatorio = [...equipamentos];
+    
+    if (filtro !== 'todos' && filtroEspecifico) {
+        dadosRelatorio = dadosRelatorio.filter(equipamento => {
+            return equipamento[filtro] === filtroEspecifico;
+        });
+    }
+    
+    // 2. Ordenar dados
+    dadosRelatorio.sort((a, b) => {
+        if (ordenacao === 'data') {
+            return new Date(b.data.split('/').reverse().join('-')) - new Date(a.data.split('/').reverse().join('-'));
+        }
+        return a[ordenacao].localeCompare(b[ordenacao]);
+    });
+    
+    // 3. Atualizar data
+    const agora = new Date();
+    elementos.dataRelatorio.textContent = `Data: ${agora.toLocaleDateString('pt-BR')}`;
+    elementos.dataGeracao.textContent = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR');
+    
+    // 4. Gerar tabela
+    elementos.corpoRelatorio.innerHTML = '';
+    
+    if (dadosRelatorio.length === 0) {
+        elementos.corpoRelatorio.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 20px; color: #666;">
+                    Nenhum equipamento encontrado com os filtros aplicados
+                </td>
+            </tr>
+        `;
+    } else {
+        dadosRelatorio.forEach(equipamento => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${equipamento.equipamento}</td>
+                <td>${equipamento.tipo}</td>
+                <td>${equipamento.serie}</td>
+                <td>${equipamento.departamento}</td>
+                <td>${equipamento.status}</td>
+                <td>${equipamento.data}</td>
+            `;
+            elementos.corpoRelatorio.appendChild(tr);
+        });
+    }
+    
+    // 5. Mostrar relatório
+    elementos.areaRelatorio.style.display = 'block';
+    elementos.modalRelatorio.style.display = 'none';
+    
+    // 6. Scroll automático
+    setTimeout(() => {
+        elementos.areaRelatorio.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+}
+
+function imprimirRelatorio() {
+    window.print();
+}
+
+function esconderRelatorio() {
+    elementos.areaRelatorio.style.display = 'none';
+}
+
+function imprimirRelatorio() {
+    window.print();
+}
+
+function esconderRelatorio() {
+    elementos.areaRelatorio.style.display = 'none';
 }
 
 // ======= UTILITÁRIOS =======

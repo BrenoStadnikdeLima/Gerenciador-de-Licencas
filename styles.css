@@ -36,6 +36,18 @@ body {
   padding: 0 20px;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ===== HEADER ===== */
 .header {
   background: var(--gradient-header);
@@ -67,7 +79,7 @@ body {
 }
 
 .logo {
-  height: 45px; /* Ajuste conforme sua logo */
+  height: 45px;
   width: auto;
   display: block;
 }
@@ -134,7 +146,7 @@ body {
 /* ===== FILTROS E PESQUISA ===== */
 .filter-section {
   display: flex;
-  gap: 20px;
+  gap: 15px;
   margin-bottom: 30px;
   flex-wrap: wrap;
   align-items: center;
@@ -238,6 +250,17 @@ body {
 
 .btn-primary:hover {
   background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-light);
+}
+
+.btn-success {
+  background: #28a745;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #218838;
   transform: translateY(-1px);
   box-shadow: var(--shadow-light);
 }
@@ -369,6 +392,11 @@ body {
   transform: translateY(-1px);
 }
 
+.action-btn.excluir-btn:hover {
+  background-color: #f8d7da;
+  color: #dc3545;
+}
+
 /* ===== MODAL ===== */
 .modal {
   display: none;
@@ -484,6 +512,262 @@ body {
   margin-top: 30px;
 }
 
+/* ===== MODAL DE RELATÓRIO ===== */
+.modal-relatorio {
+  max-width: 600px;
+}
+
+/* ===== ESTILOS PARA RELATÓRIO DE IMPRESSÃO ===== */
+.relatorio-container {
+  max-width: 210mm;
+  margin: 0 auto;
+  padding: 20mm;
+  background: white;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.cabecalho-relatorio {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 25px;
+  border-bottom: 2px solid var(--primary-blue);
+  padding-bottom: 15px;
+}
+
+.logo-relatorio {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo-relatorio .logo-bnc {
+  height: 60px; /* Ajuste conforme necessário para sua logo */
+  width: auto;
+  display: block;
+}
+
+.info-relatorio {
+  text-align: right;
+}
+
+.info-relatorio h2 {
+  color: var(--text-dark);
+  font-size: 22px;
+  margin: 0 0 5px 0;
+  font-weight: 700;
+}
+
+.info-relatorio p {
+  color: var(--text-medium);
+  margin: 2px 0;
+  font-size: 14px;
+}
+
+/* REMOVER a seção de resumo-relatorio */
+.resumo-relatorio {
+  display: none;
+}
+
+.tabela-relatorio {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 25px;
+  font-size: 12px;
+}
+
+.tabela-relatorio th {
+  background: var(--primary-blue);
+  color: white;
+  padding: 12px 8px;
+  text-align: left;
+  font-weight: 600;
+  border: 1px solid #ddd;
+}
+
+.tabela-relatorio td {
+  padding: 10px 8px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.tabela-relatorio tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+.rodape-relatorio {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #ddd;
+  color: var(--text-medium);
+  font-size: 12px;
+}
+
+.assinatura {
+  margin: 30px 0 10px 0;
+  color: var(--text-dark);
+}
+
+/* ===== RESPONSIVIDADE PARA RELATÓRIO ===== */
+@media (max-width: 768px) {
+  .cabecalho-relatorio {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+  
+  .info-relatorio {
+    text-align: center;
+  }
+  
+  .logo-relatorio .logo-bnc {
+    height: 50px;
+    margin: 0 auto;
+  }
+}
+
+/* ===== RESPONSIVIDADE PARA RELATÓRIO ===== */
+@media (max-width: 768px) {
+  .resumo-relatorio {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .cabecalho-relatorio {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+  
+  .info-relatorio {
+    text-align: center;
+  }
+  
+  .logo-relatorio .logo-bnc {
+    height: 50px;
+    margin: 0 auto;
+  }
+}
+
+/* ===== ESTILOS PARA RELATÓRIO DE IMPRESSÃO ===== */
+.relatorio-container {
+  max-width: 210mm;
+  margin: 0 auto;
+  padding: 20mm;
+  background: white;
+  font-family: 'Montserrat', sans-serif;
+  display: none;
+}
+
+.cabecalho-relatorio {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #0071CE;
+}
+
+.titulo-relatorio {
+  color: #222;
+  font-size: 28px;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.data-relatorio {
+  color: #555;
+  font-size: 16px;
+  margin: 0;
+  font-weight: 500;
+}
+
+.tabela-relatorio {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 30px;
+}
+
+.tabela-relatorio th {
+  background: #0071CE;
+  color: white;
+  padding: 12px 10px;
+  text-align: left;
+  font-weight: 600;
+  border: 1px solid #ddd;
+  font-size: 11px;
+}
+
+.tabela-relatorio td {
+  padding: 10px 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+  font-size: 11px;
+}
+
+.tabela-relatorio tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+.rodape-relatorio {
+  text-align: center;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #ddd;
+  color: #555;
+  font-size: 11px;
+}
+
+.assinatura {
+  margin: 30px 0 10px 0;
+  color: #222;
+  font-weight: 500;
+}
+
+/* ===== ESTILOS DE IMPRESSÃO ===== */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  
+  .relatorio-container,
+  .relatorio-container * {
+    visibility: visible;
+  }
+  
+  .relatorio-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 15mm;
+    box-shadow: none;
+  }
+  
+  .action-buttons,
+  .modal,
+  .notification,
+  .header,
+  .filter-section,
+  .page-title,
+  .page-description {
+    display: none !important;
+  }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .titulo-relatorio {
+    font-size: 24px;
+  }
+  
+  .data-relatorio {
+    font-size: 14px;
+  }
+}
+
 /* ===== NOTIFICAÇÃO ===== */
 .notification {
   position: fixed;
@@ -565,7 +849,7 @@ body {
   .table-container {
     border-radius: 0;
     margin: 0 -15px 30px;
-    max-height: 500px; /* Altura menor em mobile */
+    max-height: 500px;
   }
   
   .licenses-table {
@@ -603,6 +887,16 @@ body {
     left: 15px;
     bottom: 15px;
   }
+  
+  .resumo-relatorio {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .cabecalho-relatorio {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -628,7 +922,7 @@ body {
   }
   
   .table-container {
-    max-height: 400px; /* Altura ainda menor em telas pequenas */
+    max-height: 400px;
   }
   
   .licenses-table th,
@@ -645,8 +939,4 @@ body {
     padding: 10px 15px;
     font-size: 13px;
   }
-.action-btn.excluir-btn:hover {
-    background-color: #f8d7da;
-    color: #dc3545;
-}
 }

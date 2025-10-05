@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Controle de Equipamentos | PROSUL</title>
+      <link rel="icon" href="img/icon_mky.png" type="image/png">
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -62,10 +63,13 @@
           </select>
         </div>
 
-        <!-- BOTÃO ADICIONAR -->
+        <!-- BOTÕES DE AÇÃO -->
         <div class="action-buttons">
           <button type="button" id="adicionarEquipamento" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Adicionar Equipamento
+            <i class="fas fa-plus"></i> Adicionar
+          </button>
+          <button type="button" id="gerarRelatorio" class="btn btn-success">
+            <i class="fas fa-print"></i> Relatório
           </button>
         </div>
       </div>
@@ -149,11 +153,87 @@
       </div>
     </div>
 
-    <!-- Notificação de Sucesso -->
-    <div id="alertaSucessoEquipamentos" class="notification">
-      <i class="fas fa-check-circle"></i>
-      <span id="notificationTextEquipamentos"></span>
+    <!-- Modal de Relatório -->
+    <div id="modalRelatorio" class="modal">
+      <div class="modal-content modal-relatorio">
+        <div class="modal-header">
+          <h2 id="modalTitleRelatorio">Gerar Relatório</h2>
+          <button type="button" class="close-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="filtroRelatorio">Filtrar por:</label>
+            <select id="filtroRelatorio" class="form-input">
+              <option value="todos">Todos os Equipamentos</option>
+              <option value="tipo">Por Tipo</option>
+              <option value="status">Por Status</option>
+              <option value="departamento">Por Departamento</option>
+            </select>
+          </div>
+          
+          <div class="form-group" id="grupoFiltroEspecifico" style="display: none;">
+            <label id="labelFiltroEspecifico">Filtro específico:</label>
+            <select id="filtroEspecifico" class="form-input">
+              <!-- Opções serão preenchidas via JavaScript -->
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="ordenacaoRelatorio">Ordenar por:</label>
+            <select id="ordenacaoRelatorio" class="form-input">
+              <option value="equipamento">Nome do Equipamento</option>
+              <option value="tipo">Tipo</option>
+              <option value="departamento">Departamento</option>
+              <option value="status">Status</option>
+              <option value="data">Data de Modificação</option>
+            </select>
+          </div>
+          
+          <div class="modal-actions">
+            <button type="button" id="visualizarRelatorio" class="btn btn-primary">
+              <i class="fas fa-eye"></i> Visualizar
+            </button>
+            <button type="button" id="imprimirRelatorio" class="btn btn-success">
+              <i class="fas fa-print"></i> Imprimir
+            </button>
+            <button type="button" id="cancelarRelatorio" class="btn btn-secondary">Cancelar</button>
+          </div>
+        </div>
+      </div>
     </div>
+
+ <!-- Área do Relatório para Impressão -->
+<div id="areaRelatorio" class="relatorio-container">
+  <div class="cabecalho-relatorio">
+    <h1 class="titulo-relatorio">Relatório de Equipamentos</h1>
+    <p class="data-relatorio" id="dataRelatorio">Data: </p>
+  </div>
+  
+  <table id="tabelaRelatorio" class="tabela-relatorio">
+    <thead>
+      <tr>
+        <th>Equipamento</th>
+        <th>Tipo</th>
+        <th>Nº Série</th>
+        <th>Departamento</th>
+        <th>Status</th>
+        <th>Última Atualização</th>
+      </tr>
+    </thead>
+    <tbody id="corpoRelatorio">
+      <!-- Dados serão preenchidos via JavaScript -->
+    </tbody>
+  </table>
+  
+  <div class="rodape-relatorio">
+    <p>Relatório gerado em <span id="dataGeracao"></span></p>
+    <p class="assinatura">___________________________________</p>
+    <p>Responsável</p>
+  </div>
+</div>
   </main>
 
   <script src="equipamentos.js"></script>
