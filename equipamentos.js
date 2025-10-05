@@ -3,7 +3,7 @@ const firebaseConfig = {
     apiKey: "AIzaSyC5p_Bcaxs_075-Av-dKFoNfqVjXUZP9a0",
     authDomain: "prosul-equipamentos.firebaseapp.com",
     projectId: "prosul-equipamentos",
-    storageBucket: "prosul-equipamentos.appspot.com", // corrigido
+    storageBucket: "prosul-equipamentos.firebasestorage.app",
     messagingSenderId: "799195941543",
     appId: "1:799195941543:web:8eb0e9e3f83c980e302982"
 };
@@ -22,6 +22,7 @@ let estado = {
 // ======= INICIALIZAÇÃO FIREBASE =======
 function inicializarFirebase() {
     try {
+        // Verificar se Firebase já foi inicializado
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -30,7 +31,6 @@ function inicializarFirebase() {
         return true;
     } catch (error) {
         console.error('❌ Erro ao inicializar Firebase:', error);
-        alert('❌ Não foi possível conectar ao Firebase. Dados serão salvos localmente.');
         return false;
     }
 }
@@ -45,12 +45,12 @@ async function carregarDados() {
     try {
         console.log('📥 Carregando dados do Firebase...');
         const snapshot = await db.collection('equipamentos').get();
-
+        
         if (snapshot.empty) {
             console.log('📭 Nenhum dado encontrado no Firebase');
             return carregarDadosLocais();
         }
-
+        
         const dados = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         console.log(`✅ ${dados.length} itens carregados do Firebase`);
         return dados;
@@ -62,8 +62,9 @@ async function carregarDados() {
 }
 
 async function salvarDados() {
+    // Sempre salvar localmente primeiro
     salvarDadosLocais();
-
+    
     if (!db) {
         console.log('⚠️ Firebase não disponível, salvando apenas localmente');
         return true;
@@ -71,19 +72,26 @@ async function salvarDados() {
 
     try {
         console.log('💾 Tentando salvar no Firebase...');
+        
+        // Buscar documentos existentes
         const snapshot = await db.collection('equipamentos').get();
         const batch = db.batch();
-
-        snapshot.docs.forEach(doc => batch.delete(doc.ref));
+        
+        // Limpar documentos existentes
+        snapshot.docs.forEach(doc => {
+            batch.delete(doc.ref);
+        });
         await batch.commit();
+        console.log('🗑️ Documentos antigos removidos');
 
+        // Salvar novos documentos
         const newBatch = db.batch();
         usuarios.forEach(usuario => {
             const docRef = db.collection('equipamentos').doc(usuario.anydesk);
             newBatch.set(docRef, usuario);
         });
         await newBatch.commit();
-
+        
         console.log(`✅ ${usuarios.length} itens salvos no Firebase`);
         return true;
     } catch (error) {
@@ -93,7 +101,7 @@ async function salvarDados() {
     }
 }
 
-// ======= FUNÇÕES LOCAIS =======
+// ======= FUNÇÕES LOCAIS (FALLBACK) =======
 function carregarDadosLocais() {
     try {
         const dadosSalvos = localStorage.getItem('equipamentosProsul');
@@ -118,8 +126,6 @@ function salvarDadosLocais() {
         return false;
     }
 }
-
-
 
 // ======= ELEMENTOS DOM =======
 const elementos = {
@@ -162,14 +168,18 @@ const elementos = {
 // ======= INICIALIZAÇÃO =======
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('🚀 Iniciando aplicação...');
+    
+    // Inicializar Firebase
     const firebaseInicializado = inicializarFirebase();
+    
+    // Carregar dados (tenta Firebase primeiro, depois local)
     usuarios = await carregarDados();
     estado.dadosFiltrados = [...usuarios];
-
+    
     renderizarTabela();
     configurarEventListeners();
     configurarModalKit();
-
+    
     console.log(`🎯 Aplicação iniciada com ${usuarios.length} usuários`);
     console.log(`🌐 Firebase: ${firebaseInicializado ? 'CONECTADO' : 'OFFLINE'}`);
 });
@@ -275,18 +285,32 @@ function renderizarTabela(dados = estado.dadosFiltrados) {
     dados.forEach((usuario) => {
         const tr = document.createElement("tr");
         
+        // NOVOS STATUS - APENAS NOMES ATUALIZADOS
         let statusClass = "";
+        let statusText = "";
         switch(usuario.status) {
-            case "Ativo": statusClass = "status-ativo"; break;
-            case "Manutenção": statusClass = "status-manutencao"; break;
-            case "Inativo": statusClass = "status-inativo"; break;
+            case "Em uso":
+                statusClass = "status-ativo";
+                statusText = "EM USO";
+                break;
+            case "Em manutenção":
+                statusClass = "status-manutencao";
+                statusText = "EM MANUTENÇÃO";
+                break;
+            case "Sem uso":
+                statusClass = "status-inativo";
+                statusText = "SEM USO";
+                break;
+            default:
+                statusClass = "status-inativo";
+                statusText = usuario.status || 'N/A';
         }
         
         tr.innerHTML = `
             <td>${usuario.usuario || 'N/A'}</td>
             <td>${usuario.anydesk || 'N/A'}</td>
             <td>${usuario.departamento || 'N/A'}</td>
-            <td><span class="status-badge ${statusClass}">${usuario.status || 'N/A'}</span></td>
+            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
             <td>${usuario.data || 'N/A'}</td>
             <td>
                 <div class="actions">
@@ -515,15 +539,19 @@ function configurarFiltroRelatorio() {
         elementos.filtroEspecifico.innerHTML = '';
         
         if (filtro === 'status') {
-            ['Ativo', 'Manutenção', 'Inativo'].forEach(s => {
+            // NOVOS STATUS
+            const status = ['Em uso', 'Em manutenção', 'Sem uso'];
+            status.forEach(s => {
                 const option = document.createElement('option');
-                option.value = s; option.textContent = s;
+                option.value = s;
+                option.textContent = s;
                 elementos.filtroEspecifico.appendChild(option);
             });
         } else if (filtro === 'departamento') {
             [...new Set(usuarios.map(u => u.departamento))].forEach(depto => {
                 const option = document.createElement('option');
-                option.value = depto; option.textContent = depto;
+                option.value = depto;
+                option.textContent = depto;
                 elementos.filtroEspecifico.appendChild(option);
             });
         }
