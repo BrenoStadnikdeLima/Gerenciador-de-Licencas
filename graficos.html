@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gráficos e Relatórios | PROSUL</title>
+  <link rel="icon" href="img/icon_mky.png" type="image/png">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- ======= CABEÇALHO ======= -->
+  <header class="header">
+    <div class="header-container">
+      <div class="logo-area">
+        <img src="img/prosul_logo.png" alt="PROSUL" class="logo">
+      </div>
+
+      <nav>
+        <ul class="nav-list">
+          <li><a href="index.html" class="nav-link">Controle de Licenças</a></li>
+          <li><a href="equipamentos.html" class="nav-link">Controle de Equipamentos</a></li>
+          <li><a href="graficos.html" class="nav-link active">Gráficos</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ======= CONTEÚDO PRINCIPAL ======= -->
+  <main class="main-content">
+    <section class="container">
+      <h1 class="page-title">Gráficos e Relatórios</h1>
+      <p class="page-description">Visualize dados e métricas importantes através de gráficos interativos em tempo real.</p>
+
+      <!-- Filtros -->
+      <div class="filter-section">
+        <div class="filter-box">
+          <select id="filtroPeriodo" class="form-input">
+            <option value="todos">Todo o período</option>
+            <option value="30">Últimos 30 dias</option>
+            <option value="90">Últimos 3 meses</option>
+            <option value="365">Último ano</option>
+          </select>
+        </div>
+
+        <div class="action-buttons">
+          <button type="button" id="atualizarGraficos" class="btn btn-primary">
+            <i class="fas fa-sync-alt"></i> Atualizar
+          </button>
+          <button type="button" id="exportarDados" class="btn btn-success">
+            <i class="fas fa-download"></i> Exportar
+          </button>
+        </div>
+      </div>
+
+      <!-- Grid de Gráficos -->
+      <div class="graficos-grid">
+        
+        <!-- Gráfico 1: Status de Equipamentos -->
+        <div class="grafico-card">
+          <div class="grafico-header">
+            <h3>Status dos Equipamentos</h3>
+            <div class="grafico-actions">
+              <button class="action-btn" title="Expandir" data-grafico="status">
+                <i class="fas fa-expand"></i>
+              </button>
+            </div>
+          </div>
+          <div class="grafico-container">
+            <canvas id="graficoStatusEquipamentos"></canvas>
+          </div>
+          <div class="grafico-legenda" id="legendaStatus">
+            <!-- Legenda será preenchida via JavaScript -->
+          </div>
+        </div>
+
+        <!-- Gráfico 2: Distribuição por Departamento -->
+        <div class="grafico-card">
+          <div class="grafico-header">
+            <h3>Equipamentos por Departamento</h3>
+            <div class="grafico-actions">
+              <button class="action-btn" title="Expandir" data-grafico="departamentos">
+                <i class="fas fa-expand"></i>
+              </button>
+            </div>
+          </div>
+          <div class="grafico-container">
+            <canvas id="graficoDepartamentos"></canvas>
+          </div>
+        </div>
+
+        <!-- Gráfico 3: Licenças por Software -->
+        <div class="grafico-card">
+          <div class="grafico-header">
+            <h3>Licenças por Software</h3>
+            <div class="grafico-actions">
+              <button class="action-btn" title="Expandir" data-grafico="licencas">
+                <i class="fas fa-expand"></i>
+              </button>
+            </div>
+          </div>
+          <div class="grafico-container">
+            <canvas id="graficoLicencasSoftware"></canvas>
+          </div>
+        </div>
+
+        <!-- Gráfico 4: Evolução Mensal -->
+        <div class="grafico-card grafico-largo">
+          <div class="grafico-header">
+            <h3>Evolução de Cadastros</h3>
+            <div class="grafico-actions">
+              <button class="action-btn" title="Expandir" data-grafico="evolucao">
+                <i class="fas fa-expand"></i>
+              </button>
+            </div>
+          </div>
+          <div class="grafico-container">
+            <canvas id="graficoEvolucao"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Estatísticas Rápidas -->
+      <div class="estatisticas-grid">
+        <div class="estatistica-card">
+          <div class="estatistica-icon">
+            <i class="fas fa-desktop"></i>
+          </div>
+          <div class="estatistica-content">
+            <h3 id="totalEquipamentos">0</h3>
+            <p>Total de Equipamentos</p>
+          </div>
+        </div>
+
+        <div class="estatistica-card">
+          <div class="estatistica-icon">
+            <i class="fas fa-key"></i>
+          </div>
+          <div class="estatistica-content">
+            <h3 id="totalLicencas">0</h3>
+            <p>Total de Licenças</p>
+          </div>
+        </div>
+
+        <div class="estatistica-card">
+          <div class="estatistica-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="estatistica-content">
+            <h3 id="usuariosAtivos">0</h3>
+            <p>Usuários Ativos</p>
+          </div>
+        </div>
+
+        <div class="estatistica-card">
+          <div class="estatistica-icon">
+            <i class="fas fa-tools"></i>
+          </div>
+          <div class="estatistica-content">
+            <h3 id="emManutencao">0</h3>
+            <p>Em Manutenção</p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- Modal para Gráfico Expandido -->
+  <div id="modalGrafico" class="modal">
+    <div class="modal-content modal-grafico">
+      <div class="modal-header">
+        <h2 id="modalTituloGrafico">Gráfico</h2>
+        <button type="button" class="close-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="grafico-container-expandido">
+          <canvas id="graficoExpandido"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  
+  <script src="graficos.js"></script>
+</body>
+</html>

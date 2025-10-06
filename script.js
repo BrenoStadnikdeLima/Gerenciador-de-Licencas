@@ -110,20 +110,44 @@ function renderizarTabela(dados = estado.dadosFiltrados) {
 
 function configurarEventosBotoes() {
     // Botões de visualizar
-    document.querySelectorAll('.visualizar-btn').forEach((btn, index) => {
-        btn.addEventListener('click', () => {
-            const tr = btn.closest('tr');
-            const index = parseInt(tr.getAttribute('data-index'));
-            visualizarLicenca(index);
+    document.querySelectorAll('.visualizar-btn').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+            const tr = e.target.closest('tr');
+            const filteredIndex = parseInt(tr.getAttribute('data-index'));
+            
+            // Encontrar licença correspondente nos dados filtrados
+            const licencaFiltrada = estado.dadosFiltrados[filteredIndex];
+            
+            // Encontrar índice correto no array original
+            const originalIndex = licencas.findIndex(lic => 
+                lic.software === licencaFiltrada.software && 
+                lic.versao === licencaFiltrada.versao
+            );
+            
+            if (originalIndex !== -1) {
+                visualizarLicenca(originalIndex);
+            }
         });
     });
     
     // Botões de editar
-    document.querySelectorAll('.editar-btn').forEach((btn, index) => {
-        btn.addEventListener('click', () => {
-            const tr = btn.closest('tr');
-            const index = parseInt(tr.getAttribute('data-index'));
-            editarLicenca(index);
+    document.querySelectorAll('.editar-btn').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+            const tr = e.target.closest('tr');
+            const filteredIndex = parseInt(tr.getAttribute('data-index'));
+            
+            // Encontrar licença correspondente nos dados filtrados
+            const licencaFiltrada = estado.dadosFiltrados[filteredIndex];
+            
+            // Encontrar índice correto no array original
+            const originalIndex = licencas.findIndex(lic => 
+                lic.software === licencaFiltrada.software && 
+                lic.versao === licencaFiltrada.versao
+            );
+            
+            if (originalIndex !== -1) {
+                editarLicenca(originalIndex);
+            }
         });
     });
 }
@@ -141,24 +165,25 @@ function iniciarEdicaoInline(e) {
     const cell = e.target;
     const field = cell.getAttribute('data-field');
     const tr = cell.closest('tr');
-    const index = parseInt(tr.getAttribute('data-index'));
+    const filteredIndex = parseInt(tr.getAttribute('data-index'));
     const originalValue = cell.textContent;
     
-    estado.editingCell = { cell, field, index, originalValue };
+    // Encontrar licença correspondente nos dados filtrados
+    const licencaFiltrada = estado.dadosFiltrados[filteredIndex];
+    
+    // Encontrar índice correto no array original
+    const originalIndex = licencas.findIndex(lic => 
+        lic.software === licencaFiltrada.software && 
+        lic.versao === licencaFiltrada.versao
+    );
+    
+    estado.editingCell = { cell, field, originalIndex, filteredIndex, originalValue };
     
     // Criar input para edição
     const input = document.createElement('input');
     input.type = field === 'licencas' ? 'number' : 'text';
     input.value = originalValue;
     input.className = 'inline-edit-input';
-    
-    // Estilizar input
-    input.style.width = '100%';
-    input.style.border = '2px solid var(--primary-blue)';
-    input.style.borderRadius = '4px';
-    input.style.padding = '8px';
-    input.style.fontSize = 'inherit';
-    input.style.fontFamily = 'inherit';
     
     // Substituir conteúdo
     cell.innerHTML = '';
@@ -186,7 +211,7 @@ function iniciarEdicaoInline(e) {
 function finalizarEdicaoInline(novoValor) {
     if (!estado.editingCell) return;
     
-    const { cell, field, index, originalValue } = estado.editingCell;
+    const { cell, field, originalIndex, filteredIndex, originalValue } = estado.editingCell;
     
     if (novoValor.trim() === '') {
         mostrarNotificacao('Valor não pode estar vazio', 'erro');
@@ -196,20 +221,18 @@ function finalizarEdicaoInline(novoValor) {
     
     // Atualizar dados
     const valorFinal = field === 'licencas' ? parseInt(novoValor) : novoValor;
-    licencas[index][field] = valorFinal;
-    licencas[index].data = obterDataAtual();
+    
+    // Atualizar array original
+    licencas[originalIndex][field] = valorFinal;
+    licencas[originalIndex].data = obterDataAtual();
+    
+    // Atualizar array filtrado
+    estado.dadosFiltrados[filteredIndex][field] = valorFinal;
+    estado.dadosFiltrados[filteredIndex].data = obterDataAtual();
     
     // Atualizar célula
     cell.textContent = valorFinal;
     cell.classList.remove('editing');
-    
-    // Atualizar dados filtrados se necessário
-    const filteredIndex = estado.dadosFiltrados.findIndex(item => 
-        item.software === licencas[index].software
-    );
-    if (filteredIndex !== -1) {
-        estado.dadosFiltrados[filteredIndex] = { ...licencas[index] };
-    }
     
     estado.editingCell = null;
     mostrarNotificacao('Licença atualizada com sucesso!');
@@ -235,8 +258,11 @@ function filtrarLicencas() {
         
         // Simular status baseado em regras simples
         let statusLicenca = 'Ativa';
+        const dataExpiracao = new Date(licenca.data.split('/').reverse().join('-'));
+        const hoje = new Date();
+        
         if (licenca.licencas < 20) statusLicenca = 'Em Renovação';
-        if (new Date(licenca.data.split('/').reverse().join('-')) < new Date()) {
+        if (dataExpiracao < hoje) {
             statusLicenca = 'Expirada';
         }
         
@@ -317,6 +343,62 @@ function salvarLicenca() {
     mostrarNotificacao('Licença atualizada com sucesso!');
 }
 
+// ======= RELATÓRIO =======
+function gerarRelatorio() {
+    // Criar elemento de relatório temporário
+    const relatorioContainer = document.createElement('div');
+    relatorioContainer.className = 'relatorio-container';
+    relatorioContainer.style.display = 'block';
+    
+    const agora = new Date();
+    const dataFormatada = agora.toLocaleDateString('pt-BR');
+    
+    relatorioContainer.innerHTML = `
+        <div class="cabecalho-relatorio">
+            <h1 class="titulo-relatorio">Relatório de Licenças</h1>
+            <p class="data-relatorio">Data: ${dataFormatada}</p>
+        </div>
+        
+        <table class="tabela-relatorio">
+            <thead>
+                <tr>
+                    <th>Software</th>
+                    <th>Versão</th>
+                    <th>Nº de Licenças</th>
+                    <th>Última Modificação</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${licencas.map(licenca => `
+                    <tr>
+                        <td>${licenca.software}</td>
+                        <td>${licenca.versao}</td>
+                        <td>${licenca.licencas}</td>
+                        <td>${licenca.data}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+        
+        <div class="rodape-relatorio">
+            <p>Relatório gerado em ${dataFormatada}</p>
+            <p class="assinatura">___________________________________</p>
+            <p>Responsável</p>
+        </div>
+    `;
+    
+    // Adicionar ao body
+    document.body.appendChild(relatorioContainer);
+    
+    // Imprimir
+    window.print();
+    
+    // Remover após impressão
+    setTimeout(() => {
+        document.body.removeChild(relatorioContainer);
+    }, 100);
+}
+
 // ======= UTILITÁRIOS =======
 function obterDataAtual() {
     const now = new Date();
@@ -347,6 +429,9 @@ function mostrarNotificacao(mensagem, tipo = 'sucesso') {
         elementos.alerta.style.display = 'none';
     }, 3000);
 }
+
+// Adicionar função de relatório ao escopo global para acesso pelo HTML
+window.gerarRelatorio = gerarRelatorio;
 
 // Renderizar tabela inicial
 renderizarTabela();

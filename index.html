@@ -12,22 +12,21 @@
 <body>
 
   <!-- ======= CABEÇALHO ======= -->
-  <header class="header">
-    <div class="header-container">
-      <div class="logo-area">
-        <!-- SUA LOGO REAL - sem texto PROSUL -->
-        <img src="img/prosul_logo.png" alt="PROSUL" class="logo">
-      </div>
-
-      <nav class="nav-menu">
-  <ul class="nav-list">
-    <li><a href="index.html" class="nav-link active">Controle de Licenças</a></li>
-    <li><a href="equipamentos.html" class="nav-link">Controle de Equipamentos</a></li>
-    <li><a href="graficos.html" class="nav-link">Gráficos</a></li>
-  </ul>
-</nav>
+ <header class="header">
+  <div class="header-container">
+    <div class="logo-area">
+      <img src="img/prosul_logo.png" alt="PROSUL" class="logo">
     </div>
-  </header>
+
+    <nav>
+      <ul class="nav-list">
+        <li><a href="index.html" class="nav-link active">Controle de Licenças</a></li>
+        <li><a href="equipamentos.html" class="nav-link">Controle de Equipamentos</a></li>
+        <li><a href="graficos.html" class="nav-link">Gráficos</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
 
   <!-- ======= CONTEÚDO PRINCIPAL ======= -->
   <main class="main-content">
@@ -51,6 +50,13 @@
             <option value="Expirada">Expirada</option>
             <option value="Em Renovação">Em Renovação</option>
           </select>
+        </div>
+
+        <!-- BOTÕES DE AÇÃO ADICIONADOS -->
+        <div class="action-buttons">
+          <button type="button" class="btn btn-success" onclick="gerarRelatorio()">
+            <i class="fas fa-print"></i> Relatório
+          </button>
         </div>
       </div>
 

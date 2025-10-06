@@ -23,6 +23,11 @@ let estado = {
 function inicializarFirebase() {
     try {
         // Verificar se Firebase já foi inicializado
+        if (typeof firebase === 'undefined') {
+            console.error('Firebase não carregado');
+            return false;
+        }
+        
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -113,7 +118,12 @@ function carregarDadosLocais() {
     } catch (error) {
         console.error('Erro ao carregar dados locais:', error);
     }
-    return [];
+    
+    // Dados de exemplo se não houver nada salvo
+    return [
+        { usuario: "João Silva", anydesk: "123456789", departamento: "TC1", status: "Em uso", data: "15/01/2024" },
+        { usuario: "Maria Santos", anydesk: "987654321", departamento: "LOGISTICA", status: "Em manutenção", data: "10/01/2024" }
+    ];
 }
 
 function salvarDadosLocais() {
@@ -282,10 +292,11 @@ function renderizarTabela(dados = estado.dadosFiltrados) {
         return;
     }
     
-    dados.forEach((usuario) => {
+    dados.forEach((usuario, index) => {
         const tr = document.createElement("tr");
+        tr.setAttribute("data-index", index);
         
-        // NOVOS STATUS - APENAS NOMES ATUALIZADOS
+        // STATUS - APENAS NOMES ATUALIZADOS
         let statusClass = "";
         let statusText = "";
         switch(usuario.status) {
@@ -317,7 +328,7 @@ function renderizarTabela(dados = estado.dadosFiltrados) {
                     <button class="action-btn view-user-kit" title="Ver equipamentos">👤</button>
                     <button class="action-btn visualizar-btn" title="Visualizar"><i class="fas fa-eye"></i></button>
                     <button class="action-btn editar-btn" title="Editar"><i class="fas fa-pen"></i></button>
-                    <button class="action-btn excluir-btn" title="Excluir" data-usuario="${usuario.usuario}" data-anydesk="${usuario.anydesk}"><i class="fas fa-trash"></i></button>
+                    <button class="action-btn excluir-btn" title="Excluir"><i class="fas fa-trash"></i></button>
                 </div>
             </td>
         `;
@@ -332,9 +343,10 @@ function configurarEventosBotoes() {
     document.querySelectorAll('.visualizar-btn').forEach((btn) => {
         btn.addEventListener('click', (e) => {
             const tr = e.target.closest('tr');
-            const usuarioNome = tr.querySelector('td:first-child').textContent;
-            const index = usuarios.findIndex(user => user.usuario === usuarioNome);
-            if (index !== -1) visualizarUsuario(index);
+            const filteredIndex = parseInt(tr.getAttribute('data-index'));
+            const usuarioFiltrado = estado.dadosFiltrados[filteredIndex];
+            const originalIndex = usuarios.findIndex(user => user.anydesk === usuarioFiltrado.anydesk);
+            if (originalIndex !== -1) visualizarUsuario(originalIndex);
         });
     });
     
@@ -342,9 +354,10 @@ function configurarEventosBotoes() {
     document.querySelectorAll('.editar-btn').forEach((btn) => {
         btn.addEventListener('click', (e) => {
             const tr = e.target.closest('tr');
-            const usuarioNome = tr.querySelector('td:first-child').textContent;
-            const index = usuarios.findIndex(user => user.usuario === usuarioNome);
-            if (index !== -1) editarUsuario(index);
+            const filteredIndex = parseInt(tr.getAttribute('data-index'));
+            const usuarioFiltrado = estado.dadosFiltrados[filteredIndex];
+            const originalIndex = usuarios.findIndex(user => user.anydesk === usuarioFiltrado.anydesk);
+            if (originalIndex !== -1) editarUsuario(originalIndex);
         });
     });
     
@@ -352,10 +365,11 @@ function configurarEventosBotoes() {
     document.querySelectorAll('.excluir-btn').forEach((btn) => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
-            const usuario = btn.getAttribute('data-usuario');
-            const anydesk = btn.getAttribute('data-anydesk');
-            const index = usuarios.findIndex(user => user.usuario === usuario && user.anydesk === anydesk);
-            if (index !== -1) excluirUsuario(index);
+            const tr = e.target.closest('tr');
+            const filteredIndex = parseInt(tr.getAttribute('data-index'));
+            const usuarioFiltrado = estado.dadosFiltrados[filteredIndex];
+            const originalIndex = usuarios.findIndex(user => user.anydesk === usuarioFiltrado.anydesk);
+            if (originalIndex !== -1) excluirUsuario(originalIndex);
         });
     });
 }
@@ -539,7 +553,6 @@ function configurarFiltroRelatorio() {
         elementos.filtroEspecifico.innerHTML = '';
         
         if (filtro === 'status') {
-            // NOVOS STATUS
             const status = ['Em uso', 'Em manutenção', 'Sem uso'];
             status.forEach(s => {
                 const option = document.createElement('option');
