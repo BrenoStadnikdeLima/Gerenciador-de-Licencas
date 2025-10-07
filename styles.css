@@ -346,6 +346,39 @@ body {
   background-color: #f0f7ff;
 }
 
+/* ===== BADGES DE USO DE LICENÇAS ===== */
+.uso-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  min-width: 80px;
+}
+
+.uso-ativo {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.uso-inativo {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.uso-number {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.uso-percent {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
 /* ===== STATUS BADGES ===== */
 .status-badge {
   padding: 6px 12px;
@@ -812,6 +845,19 @@ body {
     text-align: center;
     gap: 15px;
   }
+
+  .uso-badge {
+    min-width: 60px;
+    padding: 6px 8px;
+  }
+
+  .uso-number {
+    font-size: 1rem;
+  }
+
+  .uso-percent {
+    font-size: 0.7rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -853,6 +899,19 @@ body {
     padding: 10px 15px;
     font-size: 13px;
   }
+
+  .uso-badge {
+    min-width: 50px;
+    padding: 4px 6px;
+  }
+
+  .uso-number {
+    font-size: 0.9rem;
+  }
+
+  .uso-percent {
+    font-size: 0.65rem;
+  }
 }
 
 /* ======= SCROLLBAR STYLING ======= */
@@ -872,205 +931,4 @@ body {
 
 .modal-content::-webkit-scrollbar-thumb:hover {
     background: #2c5aa0;
-}
-
-/* ===== ESTILOS PARA PÁGINA DE GRÁFICOS ===== */
-
-/* Grid de Gráficos */
-.graficos-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 25px;
-  margin-bottom: 40px;
-}
-
-.grafico-card {
-  background: var(--bg-white);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-light);
-  padding: 20px;
-  transition: var(--transition);
-}
-
-.grafico-card:hover {
-  box-shadow: var(--shadow-medium);
-  transform: translateY(-2px);
-}
-
-.grafico-largo {
-  grid-column: 1 / -1;
-}
-
-.grafico-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid var(--border-light);
-}
-
-.grafico-header h3 {
-  color: var(--text-dark);
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 0;
-}
-
-.grafico-actions {
-  display: flex;
-  gap: 5px;
-}
-
-.grafico-container {
-  height: 250px;
-  position: relative;
-}
-
-.grafico-container-expandido {
-  height: 500px;
-  position: relative;
-}
-
-/* Legenda do Gráfico */
-.grafico-legenda {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 15px;
-  flex-wrap: wrap;
-}
-
-.legenda-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.85rem;
-  color: var(--text-medium);
-}
-
-.legenda-cor {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-/* Grid de Estatísticas */
-.estatisticas-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  margin-bottom: 40px;
-}
-
-.estatistica-card {
-  background: var(--bg-white);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-light);
-  padding: 25px;
-  text-align: center;
-  transition: var(--transition);
-  border-top: 4px solid var(--primary-blue);
-}
-
-.estatistica-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-medium);
-}
-
-.estatistica-icon {
-  font-size: 2.5rem;
-  color: var(--primary-blue);
-  margin-bottom: 15px;
-}
-
-.estatistica-content h3 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--text-dark);
-  margin: 0 0 5px 0;
-}
-
-.estatistica-content p {
-  color: var(--text-medium);
-  margin: 0;
-  font-size: 0.9rem;
-}
-
-/* Modal de Gráfico Expandido */
-.modal-grafico {
-  max-width: 900px;
-}
-
-/* Loading State */
-.loading {
-  opacity: 0.6;
-  pointer-events: none;
-}
-
-.loading::after {
-  content: "Carregando...";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: var(--text-medium);
-  font-weight: 500;
-}
-
-/* Responsividade */
-@media (max-width: 1024px) {
-  .graficos-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .estatisticas-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
-  .grafico-card {
-    padding: 15px;
-  }
-  
-  .grafico-container {
-    height: 200px;
-  }
-  
-  .estatisticas-grid {
-    grid-template-columns: 1fr;
-    gap: 15px;
-  }
-  
-  .estatistica-card {
-    padding: 20px;
-  }
-  
-  .estatistica-icon {
-    font-size: 2rem;
-  }
-  
-  .estatistica-content h3 {
-    font-size: 1.75rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .grafico-legenda {
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-  }
-  
-  .grafico-header {
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-  }
-  
-  .grafico-actions {
-    align-self: flex-end;
-  }
 }

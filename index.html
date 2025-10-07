@@ -12,32 +12,32 @@
 <body>
 
   <!-- ======= CABEÇALHO ======= -->
- <header class="header">
-  <div class="header-container">
-    <div class="logo-area">
-      <img src="img/prosul_logo.png" alt="PROSUL" class="logo">
-    </div>
+  <header class="header">
+    <div class="header-container">
+      <div class="logo-area">
+        <img src="img/prosul_logo.png" alt="PROSUL" class="logo">
+      </div>
 
-    <nav>
-      <ul class="nav-list">
-        <li><a href="index.html" class="nav-link active">Controle de Licenças</a></li>
-        <li><a href="equipamentos.html" class="nav-link">Controle de Equipamentos</a></li>
-        <li><a href="graficos.html" class="nav-link">Gráficos</a></li>
-      </ul>
-    </nav>
-  </div>
-</header>
+      <nav>
+        <ul class="nav-list">
+          <li><a href="index.html" class="nav-link active">Controle de Licenças</a></li>
+          <li><a href="equipamentos.html" class="nav-link">Controle de Equipamentos</a></li>
+          <li><a href="graficos.html" class="nav-link">Gráficos</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
 
   <!-- ======= CONTEÚDO PRINCIPAL ======= -->
   <main class="main-content">
     <section class="container">
       <h1 class="page-title">Controle de Licenças</h1>
-      <p class="page-description">Visualize, edite e gerencie licenças de software de forma simples e prática.</p>
+      <p class="page-description">Gerencie todas as licenças de software da empresa de forma centralizada e eficiente.</p>
 
       <!-- Área de Pesquisa e Filtros -->
       <div class="filter-section">
         <div class="search-box">
-          <input type="text" id="searchInput" placeholder="Pesquisa na Licença" class="search-input">
+          <input type="text" id="searchInput" placeholder="Pesquisar software, versão..." class="search-input">
           <button type="button" class="search-btn">
             <i class="fas fa-search"></i>
           </button>
@@ -52,9 +52,12 @@
           </select>
         </div>
 
-        <!-- BOTÕES DE AÇÃO ADICIONADOS -->
+        <!-- BOTÕES DE AÇÃO -->
         <div class="action-buttons">
-          <button type="button" class="btn btn-success" onclick="gerarRelatorio()">
+          <button type="button" id="novaLicenca" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nova Licença
+          </button>
+          <button type="button" id="gerarRelatorio" class="btn btn-success">
             <i class="fas fa-print"></i> Relatório
           </button>
         </div>
@@ -67,8 +70,10 @@
             <tr>
               <th>SOFTWARE</th>
               <th>VERSÃO</th>
-              <th>Nº DE LICENÇAS</th>
-              <th>ÚLTIMA MODIFICAÇÃO</th>
+              <th>QUANTIDADE TOTAL</th>
+              <th>EM USO</th>
+              <th>SEM USO</th>
+              <th>DATA DE EXPIRAÇÃO</th>
               <th>AÇÕES</th>
             </tr>
           </thead>
@@ -91,24 +96,69 @@
         
         <div class="modal-body">
           <form id="formLicenca">
-            <div class="form-group">
-              <label for="modalSoftware">Software</label>
-              <input type="text" id="modalSoftware" class="form-input" disabled>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="modalSoftware">Software *</label>
+                <input type="text" id="modalSoftware" class="form-input" placeholder="Nome do software" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="modalVersao">Versão *</label>
+                <input type="text" id="modalVersao" class="form-input" placeholder="Versão do software" required>
+              </div>
             </div>
             
-            <div class="form-group">
-              <label for="modalVersao">Versão</label>
-              <input type="text" id="modalVersao" class="form-input" disabled>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="modalLicencas">Quantidade Total *</label>
+                <input type="number" id="modalLicencas" class="form-input" placeholder="Número total de licenças" min="1" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="modalEmUso">Licenças em Uso *</label>
+                <input type="number" id="modalEmUso" class="form-input" placeholder="Licenças sendo usadas" min="0" required>
+              </div>
             </div>
-            
-            <div class="form-group">
-              <label for="modalLicencas">Nº de Licenças</label>
-              <input type="number" id="modalLicencas" class="form-input" disabled min="1">
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="modalSemUso">Licenças sem Uso *</label>
+                <input type="number" id="modalSemUso" class="form-input" placeholder="Licenças disponíveis" min="0" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="modalData">Data de Expiração *</label>
+                <input type="text" id="modalData" class="form-input" placeholder="DD/MM/AAAA" required>
+              </div>
             </div>
-            
-            <div class="form-group">
-              <label for="modalData">Última Modificação</label>
-              <input type="text" id="modalData" class="form-input" readonly>
+
+            <!-- Seção de Informações Adicionais -->
+            <div class="equipment-section">
+              <h4>Informações Adicionais</h4>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="modalFornecedor">Fornecedor</label>
+                  <input type="text" id="modalFornecedor" class="form-input" placeholder="Nome do fornecedor">
+                </div>
+                
+                <div class="form-group">
+                  <label for="modalValor">Valor da Licença</label>
+                  <input type="text" id="modalValor" class="form-input" placeholder="R$ 0,00">
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="modalContato">Contato do Fornecedor</label>
+                  <input type="text" id="modalContato" class="form-input" placeholder="Telefone ou email">
+                </div>
+                
+                <div class="form-group">
+                  <label for="modalObservacoes">Observações</label>
+                  <input type="text" id="modalObservacoes" class="form-input" placeholder="Observações adicionais">
+                </div>
+              </div>
             </div>
             
             <div class="modal-actions">
@@ -117,6 +167,86 @@
             </div>
           </form>
         </div>
+      </div>
+    </div>
+
+    <!-- Modal de Relatório -->
+    <div id="modalRelatorio" class="modal">
+      <div class="modal-content modal-relatorio">
+        <div class="modal-header">
+          <h2 id="modalTitleRelatorio">Gerar Relatório de Licenças</h2>
+          <button type="button" class="close-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="filtroRelatorio">Filtrar por:</label>
+            <select id="filtroRelatorio" class="form-input">
+              <option value="todos">Todas as Licenças</option>
+              <option value="software">Por Software</option>
+              <option value="status">Por Status</option>
+            </select>
+          </div>
+          
+          <div class="form-group" id="grupoFiltroEspecifico" style="display: none;">
+            <label id="labelFiltroEspecifico">Filtro específico:</label>
+            <select id="filtroEspecifico" class="form-input">
+              <!-- Opções serão preenchidas via JavaScript -->
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="ordenacaoRelatorio">Ordenar por:</label>
+            <select id="ordenacaoRelatorio" class="form-input">
+              <option value="software">Nome do Software</option>
+              <option value="quantidade">Quantidade</option>
+              <option value="data">Data de Expiração</option>
+              <option value="status">Status</option>
+            </select>
+          </div>
+          
+          <div class="modal-actions">
+            <button type="button" id="visualizarRelatorio" class="btn btn-primary">
+              <i class="fas fa-eye"></i> Visualizar
+            </button>
+            <button type="button" id="imprimirRelatorio" class="btn btn-success">
+              <i class="fas fa-print"></i> Imprimir
+            </button>
+            <button type="button" id="cancelarRelatorio" class="btn btn-secondary">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Área do Relatório para Impressão -->
+    <div id="areaRelatorio" class="relatorio-container">
+      <div class="cabecalho-relatorio">
+        <h1 class="titulo-relatorio">Relatório de Licenças de Software</h1>
+        <p class="data-relatorio" id="dataRelatorio">Data: </p>
+      </div>
+      
+      <table id="tabelaRelatorio" class="tabela-relatorio">
+        <thead>
+          <tr>
+            <th>Software</th>
+            <th>Versão</th>
+            <th>Quantidade Total</th>
+            <th>Em Uso</th>
+            <th>Sem Uso</th>
+            <th>Data de Expiração</th>
+          </tr>
+        </thead>
+        <tbody id="corpoRelatorio">
+          <!-- Dados serão preenchidos via JavaScript -->
+        </tbody>
+      </table>
+      
+      <div class="rodape-relatorio">
+        <p>Relatório gerado em <span id="dataGeracao"></span></p>
+        <p class="assinatura">___________________________________</p>
+        <p>Responsável</p>
       </div>
     </div>
 
