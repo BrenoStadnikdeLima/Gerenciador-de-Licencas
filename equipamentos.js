@@ -22,7 +22,6 @@ let estado = {
 // ======= INICIALIZAÇÃO FIREBASE =======
 function inicializarFirebase() {
     try {
-        // Verificar se Firebase já foi inicializado
         if (typeof firebase === 'undefined') {
             console.error('Firebase não carregado');
             return false;
@@ -121,8 +120,28 @@ function carregarDadosLocais() {
     
     // Dados de exemplo se não houver nada salvo
     return [
-        { usuario: "João Silva", anydesk: "123456789", departamento: "TC1", status: "Em uso", data: "15/01/2024" },
-        { usuario: "Maria Santos", anydesk: "987654321", departamento: "LOGISTICA", status: "Em manutenção", data: "10/01/2024" }
+        { 
+            usuario: "João Silva", 
+            anydesk: "123456789", 
+            departamento: "TC1", 
+            status: "Em uso", 
+            data: "15/01/2024",
+            desktop: "Dell Optiplex 3070",
+            monitor1: "Dell 24\"",
+            monitor2: "Dell 24\"",
+            nobreak: "APC 1500VA"
+        },
+        { 
+            usuario: "Maria Santos", 
+            anydesk: "987654321", 
+            departamento: "LOGISTICA", 
+            status: "Em manutenção", 
+            data: "10/01/2024",
+            desktop: "HP EliteDesk 800",
+            monitor1: "HP 27\"",
+            monitor2: "",
+            nobreak: ""
+        }
     ];
 }
 
@@ -276,6 +295,50 @@ function configurarModalKit() {
     });
 }
 
+// ======= FILTRO DINÂMICO DE DEPARTAMENTOS =======
+function atualizarFiltroDepartamentos() {
+    const departamentoFilter = elementos.departamentoFilter;
+    if (!departamentoFilter) return;
+    
+    // Limpar opções exceto "Todos"
+    departamentoFilter.innerHTML = '<option value="Todos">Departamento</option>';
+    
+    // Pegar departamentos únicos dos dados
+    const departamentos = [...new Set(usuarios.map(user => user.departamento).filter(Boolean))];
+    
+    // Ordenar alfabeticamente
+    departamentos.sort();
+    
+    // Adicionar ao filtro
+    departamentos.forEach(dept => {
+        const option = document.createElement('option');
+        option.value = dept;
+        option.textContent = dept;
+        departamentoFilter.appendChild(option);
+    });
+    
+    console.log(`📊 Filtro de departamentos atualizado: ${departamentos.length} departamentos`);
+}
+
+// ======= ATUALIZAR SUGESTÕES DE DEPARTAMENTOS =======
+function atualizarSugestoesDepartamentos() {
+    const datalist = document.getElementById('departamentosSugeridos');
+    if (!datalist) return;
+    
+    // Limpar sugestões
+    datalist.innerHTML = '';
+    
+    // Pegar departamentos únicos
+    const departamentos = [...new Set(usuarios.map(user => user.departamento).filter(Boolean))];
+    
+    // Adicionar sugestões
+    departamentos.forEach(dept => {
+        const option = document.createElement('option');
+        option.value = dept;
+        datalist.appendChild(option);
+    });
+}
+
 function renderizarTabela(dados = estado.dadosFiltrados) {
     if (!elementos.tabela) return;
     
@@ -285,6 +348,7 @@ function renderizarTabela(dados = estado.dadosFiltrados) {
         elementos.tabela.innerHTML = `
             <tr>
                 <td colspan="6" style="text-align: center; padding: 20px; color: #666;">
+                    <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
                     Nenhum usuário encontrado
                 </td>
             </tr>
@@ -296,7 +360,7 @@ function renderizarTabela(dados = estado.dadosFiltrados) {
         const tr = document.createElement("tr");
         tr.setAttribute("data-index", index);
         
-        // STATUS - APENAS NOMES ATUALIZADOS
+        // STATUS
         let statusClass = "";
         let statusText = "";
         switch(usuario.status) {
@@ -336,6 +400,10 @@ function renderizarTabela(dados = estado.dadosFiltrados) {
     });
     
     configurarEventosBotoes();
+    
+    // ATUALIZAR FILTRO DE DEPARTAMENTOS DINAMICAMENTE
+    atualizarFiltroDepartamentos();
+    atualizarSugestoesDepartamentos();
 }
 
 function configurarEventosBotoes() {
@@ -561,7 +629,10 @@ function configurarFiltroRelatorio() {
                 elementos.filtroEspecifico.appendChild(option);
             });
         } else if (filtro === 'departamento') {
-            [...new Set(usuarios.map(u => u.departamento))].forEach(depto => {
+            // Usar departamentos dinâmicos do Firebase
+            const departamentos = [...new Set(usuarios.map(u => u.departamento).filter(Boolean))];
+            departamentos.sort();
+            departamentos.forEach(depto => {
                 const option = document.createElement('option');
                 option.value = depto;
                 option.textContent = depto;

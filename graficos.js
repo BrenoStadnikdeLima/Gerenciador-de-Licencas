@@ -578,31 +578,59 @@ function fecharModalGrafico() {
     }
 }
 
-// ======= EXPORTAR DADOS =======
 function exportarDados() {
-    const dadosExport = {
-        equipamentos: dadosEquipamentos,
-        licencas: dadosLicencas,
-        estatisticas: {
-            totalEquipamentos: dadosEquipamentos.length,
-            totalLicencas: dadosLicencas.reduce((sum, lic) => sum + (lic.licencas || 1), 0),
-            usuariosAtivos: dadosEquipamentos.filter(e => e.status === 'Em uso').length,
-            emManutencao: dadosEquipamentos.filter(e => e.status === 'Em manutenção').length
-        },
-        dataExportacao: new Date().toISOString()
+    mostrarNotificacao('Gerando arquivo Excel...');
+    
+    // Criar dados formatados para Excel
+    const dadosExcel = {
+        equipamentos: dadosEquipamentos.map(equip => ({
+            'Usuário': equip.usuario || 'N/A',
+            'Anydesk': equip.anydesk || 'N/A', 
+            'Departamento': equip.departamento || 'N/A',
+            'Status': equip.status || 'N/A',
+            'Desktop': equip.desktop || 'N/A',
+            'Monitor 1': equip.monitor1 || 'N/A',
+            'Monitor 2': equip.monitor2 || 'N/A',
+            'Nobreak': equip.nobreak || 'N/A',
+            'Última Atualização': equip.data || 'N/A'
+        })),
+        
+        licencas: dadosLicencas.map(lic => ({
+            'Software': lic.software || 'N/A',
+            'Versão': lic.versao || 'N/A',
+            'Quantidade': lic.licencas || 0,
+            'Data de Expiração': lic.data || 'N/A'
+        })),
+        
+        estatisticas: [{
+            'Total de Equipamentos': dadosEquipamentos.length,
+            'Total de Licenças': dadosLicencas.reduce((sum, lic) => sum + (lic.licencas || 1), 0),
+            'Usuários Ativos': dadosEquipamentos.filter(e => e.status === 'Em uso').length,
+            'Em Manutenção': dadosEquipamentos.filter(e => e.status === 'Em manutenção').length,
+            'Data de Exportação': new Date().toLocaleDateString('pt-BR')
+        }]
     };
     
-    const dataStr = JSON.stringify(dadosExport, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    // Criar workbook Excel
+    const wb = XLSX.utils.book_new();
     
-    const exportFileDefaultName = `dados-prosul-${new Date().toISOString().split('T')[0]}.json`;
+    // Adicionar aba de equipamentos
+    const wsEquipamentos = XLSX.utils.json_to_sheet(dadosExcel.equipamentos);
+    XLSX.utils.book_append_sheet(wb, wsEquipamentos, 'Equipamentos');
     
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
+    // Adicionar aba de licenças
+    const wsLicencas = XLSX.utils.json_to_sheet(dadosExcel.licencas);
+    XLSX.utils.book_append_sheet(wb, wsLicencas, 'Licenças');
     
-    mostrarNotificacao('Dados exportados com sucesso!');
+    // Adicionar aba de estatísticas
+    const wsEstatisticas = XLSX.utils.json_to_sheet(dadosExcel.estatisticas);
+    XLSX.utils.book_append_sheet(wb, wsEstatisticas, 'Estatísticas');
+    
+    // Gerar arquivo e fazer download
+    const fileName = `relatorio-prosul-${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+    
+    mostrarNotificacao('Excel gerado com sucesso!');
 }
 
 // ======= NOTIFICAÇÃO =======

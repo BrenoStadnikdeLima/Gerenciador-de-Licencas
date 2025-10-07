@@ -14,20 +14,20 @@
 
   <!-- ======= CABEÇALHO ======= -->
   <header class="header">
-  <div class="header-container">
-    <div class="logo-area">
-      <img src="img/prosul_logo.png" alt="PROSUL" class="logo">
-    </div>
+    <div class="header-container">
+      <div class="logo-area">
+        <img src="img/prosul_logo.png" alt="PROSUL" class="logo">
+      </div>
 
-    <nav>
-      <ul class="nav-list">
-        <li><a href="index.html" class="nav-link">Controle de Licenças</a></li>
-        <li><a href="equipamentos.html" class="nav-link active">Controle de Equipamentos</a></li>
-        <li><a href="graficos.html" class="nav-link">Gráficos</a></li>
-      </ul>
-    </nav>
-  </div>
-</header>
+      <nav>
+        <ul class="nav-list">
+          <li><a href="index.html" class="nav-link">Controle de Licenças</a></li>
+          <li><a href="equipamentos.html" class="nav-link active">Controle de Equipamentos</a></li>
+          <li><a href="graficos.html" class="nav-link">Gráficos</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
 
   <!-- ======= CONTEÚDO PRINCIPAL ======= -->
   <main class="main-content">
@@ -38,7 +38,7 @@
       <!-- Área de Pesquisa e Filtros -->
       <div class="filter-section">
         <div class="search-box">
-          <input type="text" id="searchInputEquipamentos" placeholder="Pesquisar usuário" class="search-input">
+          <input type="text" id="searchInputEquipamentos" placeholder="Pesquisar usuário, anydesk ou departamento" class="search-input">
           <button type="button" class="search-btn">
             <i class="fas fa-search"></i>
           </button>
@@ -56,17 +56,14 @@
         <div class="filter-box">
           <select id="departamentoFilterEquipamentos">
             <option value="Todos">Departamento</option>
-            <option value="TC1">TC1</option>
-            <option value="LOGISTICA">LOGÍSTICA</option>
-            <option value="FINANCEIRO">FINANCEIRO</option>
-            <option value="RH">RH</option>
+            <!-- Departamentos serão carregados dinamicamente via JavaScript -->
           </select>
         </div>
 
         <!-- BOTÕES DE AÇÃO -->
         <div class="action-buttons">
           <button type="button" id="adicionarEquipamento" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Adicionar
+            <i class="fas fa-plus"></i> Nova Entrada
           </button>
           <button type="button" id="gerarRelatorio" class="btn btn-success">
             <i class="fas fa-print"></i> Relatório
@@ -112,24 +109,27 @@
             <div class="form-row">
               <div class="form-group">
                 <label for="modalUsuarioNome">Nome do Usuário *</label>
-                <input type="text" id="modalUsuarioNome" class="form-input" placeholder="Digite o nome do usuário">
+                <input type="text" id="modalUsuarioNome" class="form-input" placeholder="Digite o nome do usuário" required>
               </div>
               
               <div class="form-group">
                 <label for="modalUsuarioAnydesk">Anydesk *</label>
-                <input type="text" id="modalUsuarioAnydesk" class="form-input" placeholder="Digite o ID do Anydesk">
+                <input type="text" id="modalUsuarioAnydesk" class="form-input" placeholder="Digite o ID do Anydesk" required>
               </div>
             </div>
             
             <div class="form-row">
               <div class="form-group">
                 <label for="modalUsuarioDepartamento">Departamento *</label>
-                <input type="text" id="modalUsuarioDepartamento" class="form-input" placeholder="Digite o departamento">
+                <input type="text" id="modalUsuarioDepartamento" class="form-input" placeholder="Digite o departamento" list="departamentosSugeridos" required>
+                <datalist id="departamentosSugeridos">
+                  <!-- Sugestões serão preenchidas dinamicamente -->
+                </datalist>
               </div>
               
               <div class="form-group">
                 <label for="modalUsuarioStatus">Status *</label>
-                <select id="modalUsuarioStatus" class="form-input">
+                <select id="modalUsuarioStatus" class="form-input" required>
                   <option value="">Selecione o status</option>
                   <option value="Em uso">Em uso</option>
                   <option value="Em manutenção">Em manutenção</option>
@@ -291,7 +291,7 @@
   </main>
 
   <!-- SCRIPTS NO FINAL DO BODY -->
-  <!-- Firebase SDK - VERSÃO CORRIGIDA -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   
