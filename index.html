@@ -8,6 +8,87 @@
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Estilos específicos para o modo cadastro */
+    .form-detalhado {
+      background: var(--bg-white);
+      padding: 30px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-light);
+      margin-bottom: 40px;
+    }
+
+    .form-section {
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .form-section:last-child {
+      border-bottom: none;
+    }
+
+    .form-section h3 {
+      color: var(--primary-blue);
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-light);
+    }
+
+    .cadastro-header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: linear-gradient(135deg, var(--primary-blue), #2c5aa0);
+      color: white;
+      border-radius: var(--border-radius);
+    }
+
+    .cadastro-header h2 {
+      margin: 0 0 10px 0;
+      font-size: 2rem;
+    }
+
+    .cadastro-header p {
+      margin: 0;
+      opacity: 0.9;
+    }
+
+    textarea.form-input {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .file-input-info {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-top: 5px;
+    }
+
+    /* Ajustes responsivos */
+    @media (max-width: 768px) {
+      .form-detalhado {
+        padding: 20px;
+      }
+      
+      .form-actions {
+        flex-direction: column;
+      }
+      
+      .cadastro-header h2 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -28,7 +109,7 @@
     </div>
   </header>
 
-  <!-- ======= CONTEÚDO PRINCIPAL ======= -->
+  <!-- ======= MODO VISUALIZAÇÃO ======= -->
   <main class="main-content">
     <section class="container">
       <h1 class="page-title">Controle de Licenças</h1>
@@ -54,10 +135,13 @@
 
         <!-- BOTÕES DE AÇÃO -->
         <div class="action-buttons">
-          <button type="button" id="novaLicenca" class="btn btn-primary">
+          <button type="button" id="btnModoCadastro" class="btn btn-primary">
+            <i class="fas fa-edit"></i> Modo Cadastro
+          </button>
+          <button type="button" id="novaLicenca" class="btn btn-success">
             <i class="fas fa-plus"></i> Nova Licença
           </button>
-          <button type="button" id="gerarRelatorio" class="btn btn-success">
+          <button type="button" id="gerarRelatorio" class="btn btn-info">
             <i class="fas fa-print"></i> Relatório
           </button>
         </div>
@@ -74,6 +158,7 @@
               <th>EM USO</th>
               <th>SEM USO</th>
               <th>DATA DE EXPIRAÇÃO</th>
+              <th>STATUS</th>
               <th>AÇÕES</th>
             </tr>
           </thead>
@@ -84,7 +169,170 @@
       </div>
     </section>
 
-    <!-- Modal de Visualização/Edição -->
+    <!-- ======= MODO CADASTRO DETALHADO ======= -->
+    <section id="modoCadastro" class="container" style="display: none;">
+      <div class="cadastro-header">
+        <h2>Cadastro Detalhado de Licenças</h2>
+        <p>Preencha todas as informações das licenças de software</p>
+      </div>
+
+      <form id="formCadastroDetalhado" class="form-detalhado">
+        <!-- Informações do Software -->
+        <div class="form-section">
+          <h3><i class="fas fa-cube"></i> Informações do Software</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cadSoftware">Software *</label>
+              <input type="text" id="cadSoftware" class="form-input" placeholder="Nome do software" required>
+            </div>
+            <div class="form-group">
+              <label for="cadVersao">Versão *</label>
+              <input type="text" id="cadVersao" class="form-input" placeholder="Versão do software" required>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cadTipo">Tipo de Licença</label>
+              <select id="cadTipo" class="form-input">
+                <option value="Perpétua">Perpétua</option>
+                <option value="Anual">Anual</option>
+                <option value="Mensal">Mensal</option>
+                <option value="Trial">Trial</option>
+                <option value="Subscription">Subscription</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="cadCategoria">Categoria</label>
+              <input type="text" id="cadCategoria" class="form-input" placeholder="Ex: Office, Design, Desenvolvimento">
+            </div>
+          </div>
+        </div>
+
+        <!-- Quantidades e Uso -->
+        <div class="form-section">
+          <h3><i class="fas fa-chart-bar"></i> Quantidades e Uso</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cadTotalLicencas">Total de Licenças *</label>
+              <input type="number" id="cadTotalLicencas" class="form-input" min="1" placeholder="Número total" required>
+            </div>
+            <div class="form-group">
+              <label for="cadEmUso">Em Uso *</label>
+              <input type="number" id="cadEmUso" class="form-input" min="0" placeholder="Licenças sendo usadas" required>
+            </div>
+            <div class="form-group">
+              <label for="cadSemUso">Sem Uso *</label>
+              <input type="number" id="cadSemUso" class="form-input" min="0" placeholder="Licenças disponíveis" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Datas e Validade -->
+        <div class="form-section">
+          <h3><i class="fas fa-calendar-alt"></i> Datas e Validade</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cadDataCompra">Data da Compra</label>
+              <input type="date" id="cadDataCompra" class="form-input">
+            </div>
+            <div class="form-group">
+              <label for="cadDataExpiracao">Data de Expiração *</label>
+              <input type="date" id="cadDataExpiracao" class="form-input" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Informações Financeiras -->
+        <div class="form-section">
+          <h3><i class="fas fa-money-bill-wave"></i> Informações Financeiras</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cadValor">Valor Total</label>
+              <input type="number" id="cadValor" class="form-input" step="0.01" placeholder="0.00">
+            </div>
+            <div class="form-group">
+              <label for="cadMoeda">Moeda</label>
+              <select id="cadMoeda" class="form-input">
+                <option value="BRL">BRL (R$)</option>
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cadPeriodicidadePagamento">Periodicidade de Pagamento</label>
+              <select id="cadPeriodicidadePagamento" class="form-input">
+                <option value="Único">Único</option>
+                <option value="Anual">Anual</option>
+                <option value="Semestral">Semestral</option>
+                <option value="Trimestral">Trimestral</option>
+                <option value="Mensal">Mensal</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fornecedor e Suporte -->
+        <div class="form-section">
+          <h3><i class="fas fa-building"></i> Fornecedor e Suporte</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cadFornecedor">Fornecedor</label>
+              <input type="text" id="cadFornecedor" class="form-input" placeholder="Nome do fornecedor">
+            </div>
+            <div class="form-group">
+              <label for="cadContato">Contato do Suporte</label>
+              <input type="text" id="cadContato" class="form-input" placeholder="Email ou telefone">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cadEmailContato">Email de Contato</label>
+              <input type="email" id="cadEmailContato" class="form-input" placeholder="email@fornecedor.com">
+            </div>
+            <div class="form-group">
+              <label for="cadTelefoneContato">Telefone de Contato</label>
+              <input type="tel" id="cadTelefoneContato" class="form-input" placeholder="(11) 99999-9999">
+            </div>
+          </div>
+        </div>
+
+        <!-- Informações Adicionais -->
+        <div class="form-section">
+          <h3><i class="fas fa-info-circle"></i> Informações Adicionais</h3>
+          <div class="form-group">
+            <label for="cadObservacoes">Observações</label>
+            <textarea id="cadObservacoes" class="form-input" rows="4" placeholder="Observações importantes sobre a licença..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="cadDocumentos">Documentos Anexados</label>
+            <input type="file" id="cadDocumentos" class="form-input" multiple accept=".pdf,.doc,.docx,.jpg,.png">
+            <div class="file-input-info">Formatos aceitos: PDF, DOC, DOCX, JPG, PNG (Máx. 10MB por arquivo)</div>
+          </div>
+          <div class="form-group">
+            <label for="cadLinkContrato">Link do Contrato</label>
+            <input type="url" id="cadLinkContrato" class="form-input" placeholder="https://...">
+          </div>
+        </div>
+
+        <!-- Ações do Formulário -->
+        <div class="form-actions">
+          <button type="submit" class="btn btn-success btn-lg">
+            <i class="fas fa-save"></i> Salvar Licença
+          </button>
+          <button type="button" id="btnVoltarVisualizacao" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Voltar para Visualização
+          </button>
+          <button type="reset" class="btn btn-outline">
+            <i class="fas fa-undo"></i> Limpar Formulário
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Modal de Visualização/Edição (Existente) -->
     <div id="modal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
@@ -236,6 +484,7 @@
             <th>Em Uso</th>
             <th>Sem Uso</th>
             <th>Data de Expiração</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody id="corpoRelatorio">
@@ -257,6 +506,10 @@
     </div>
   </main>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  
   <script src="script.js"></script>
 </body>
 </html>

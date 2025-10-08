@@ -1,48 +1,175 @@
-// ======= DADOS E CONFIGURAÇÕES =======
-let licencas = [
-    { 
-        software: "Microsoft Office", 
-        versao: "2021 Pro Plus", 
-        licencas: 50, 
-        emUso: 45,
-        semUso: 5,
-        data: "03/10/2025",
-        status: "Ativa"
-    },
-    { 
-        software: "Autodesk", 
-        versao: "Autocad e Revit", 
-        licencas: 60, 
-        emUso: 52,
-        semUso: 8,
-        data: "03/10/2025",
-        status: "Ativa"
-    },
-    { 
-        software: "Windows", 
-        versao: "Pro", 
-        licencas: 200, 
-        emUso: 185,
-        semUso: 15,
-        data: "03/10/2025",
-        status: "Ativa"
-    },
-    { 
-        software: "Adobe", 
-        versao: "Pro", 
-        licencas: 15, 
-        emUso: 12,
-        semUso: 3,
-        data: "03/10/2025",
-        status: "Em Renovação"
+// ======= CONFIGURAÇÃO FIREBASE =======
+const firebaseConfig = {
+    apiKey: "AIzaSyC5p_Bcaxs_075-Av-dKFoNfqVjXUZP9a0",
+    authDomain: "prosul-equipamentos.firebaseapp.com",
+    projectId: "prosul-equipamentos",
+    storageBucket: "prosul-equipamentos.firebasestorage.app",
+    messagingSenderId: "799195941543",
+    appId: "1:799195941543:web:8eb0e9e3f83c980e302982"
+};
+
+// Variáveis globais
+let db;
+let licencas = [];
+let estado = {
+    licencaSelecionada: null,
+    modoEdicao: false,
+    modoAdicao: false,
+    dadosFiltrados: [],
+    editingCell: null,
+    modoAtual: 'visualizacao' // 'visualizacao' ou 'cadastro'
+};
+
+// ======= INICIALIZAÇÃO FIREBASE =======
+function inicializarFirebase() {
+    try {
+        if (typeof firebase === 'undefined') {
+            console.error('Firebase não carregado');
+            return false;
+        }
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        db = firebase.firestore();
+        console.log('✅ Firebase inicializado para licenças!');
+        return true;
+    } catch (error) {
+        console.error('❌ Erro ao inicializar Firebase:', error);
+        return false;
     }
-];
+}
+
+// ======= FUNÇÕES FIREBASE =======
+async function carregarLicencas() {
+    if (!db) {
+        console.log('⚠️ Firebase não inicializado, usando dados locais');
+        return carregarLicencasLocais();
+    }
+
+    try {
+        console.log('📥 Carregando licenças do Firebase...');
+        const snapshot = await db.collection('licencas').get();
+        
+        if (snapshot.empty) {
+            console.log('📭 Nenhuma licença encontrada no Firebase');
+            return carregarLicencasLocais();
+        }
+        
+        const dados = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        console.log(`✅ ${dados.length} licenças carregadas do Firebase`);
+        return dados;
+    } catch (error) {
+        console.error('❌ Erro ao carregar licenças do Firebase:', error);
+        alert('⚠️ Usando modo offline. Dados serão salvos localmente.');
+        return carregarLicencasLocais();
+    }
+}
+
+async function salvarLicencas() {
+    // Sempre salvar localmente primeiro
+    salvarLicencasLocais();
+    
+    if (!db) {
+        console.log('⚠️ Firebase não disponível, salvando apenas localmente');
+        return true;
+    }
+
+    try {
+        console.log('💾 Tentando salvar licenças no Firebase...');
+        
+        // Buscar documentos existentes
+        const snapshot = await db.collection('licencas').get();
+        const batch = db.batch();
+        
+        // Limpar documentos existentes
+        snapshot.docs.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        await batch.commit();
+        console.log('🗑️ Licenças antigas removidas');
+
+        // Salvar novos documentos
+        const newBatch = db.batch();
+        licencas.forEach(licenca => {
+            const docRef = db.collection('licencas').doc();
+            newBatch.set(docRef, licenca);
+        });
+        await newBatch.commit();
+        
+        console.log(`✅ ${licencas.length} licenças salvas no Firebase`);
+        return true;
+    } catch (error) {
+        console.error('❌ Erro ao salvar licenças no Firebase:', error);
+        alert('⚠️ Licenças salvas apenas localmente. Verifique a conexão.');
+        return false;
+    }
+}
+
+// ======= FUNÇÕES LOCAIS (FALLBACK) =======
+function carregarLicencasLocais() {
+    try {
+        const dadosSalvos = localStorage.getItem('licencasProsul');
+        if (dadosSalvos) {
+            const dados = JSON.parse(dadosSalvos);
+            console.log(`📁 ${dados.length} licenças carregadas do localStorage`);
+            return dados;
+        }
+    } catch (error) {
+        console.error('Erro ao carregar licenças locais:', error);
+    }
+    
+    // DADOS LIMPOS - ARRAY VAZIO
+    return [];
+}
+
+function salvarLicencasLocais() {
+    try {
+        localStorage.setItem('licencasProsul', JSON.stringify(licencas));
+        console.log(`💾 ${licencas.length} licenças salvas no localStorage`);
+        return true;
+    } catch (error) {
+        console.error('Erro ao salvar licenças locais:', error);
+        return false;
+    }
+}
 
 // Elementos DOM
 const elementos = {
+    // Modo Visualização
     tabela: document.getElementById("tableBody"),
     searchInput: document.getElementById("searchInput"),
     statusFilter: document.getElementById("statusFilter"),
+    
+    // Modos
+    btnModoCadastro: document.getElementById("btnModoCadastro"),
+    btnVoltarVisualizacao: document.getElementById("btnVoltarVisualizacao"),
+    modoCadastro: document.getElementById("modoCadastro"),
+    modoVisualizacao: document.querySelector('.main-content .container'),
+    
+    // Formulário Detalhado
+    formCadastroDetalhado: document.getElementById("formCadastroDetalhado"),
+    cadSoftware: document.getElementById("cadSoftware"),
+    cadVersao: document.getElementById("cadVersao"),
+    cadTipo: document.getElementById("cadTipo"),
+    cadCategoria: document.getElementById("cadCategoria"),
+    cadTotalLicencas: document.getElementById("cadTotalLicencas"),
+    cadEmUso: document.getElementById("cadEmUso"),
+    cadSemUso: document.getElementById("cadSemUso"),
+    cadDataCompra: document.getElementById("cadDataCompra"),
+    cadDataExpiracao: document.getElementById("cadDataExpiracao"),
+    cadValor: document.getElementById("cadValor"),
+    cadMoeda: document.getElementById("cadMoeda"),
+    cadPeriodicidadePagamento: document.getElementById("cadPeriodicidadePagamento"),
+    cadFornecedor: document.getElementById("cadFornecedor"),
+    cadContato: document.getElementById("cadContato"),
+    cadEmailContato: document.getElementById("cadEmailContato"),
+    cadTelefoneContato: document.getElementById("cadTelefoneContato"),
+    cadObservacoes: document.getElementById("cadObservacoes"),
+    cadDocumentos: document.getElementById("cadDocumentos"),
+    cadLinkContrato: document.getElementById("cadLinkContrato"),
+    
+    // Modal Existente
     modal: document.getElementById("modal"),
     modalTitle: document.getElementById("modalTitle"),
     formLicenca: document.getElementById("formLicenca"),
@@ -62,6 +189,8 @@ const elementos = {
     closeModal: document.querySelector(".close-modal"),
     btnNovaLicenca: document.getElementById("novaLicenca"),
     btnGerarRelatorio: document.getElementById("gerarRelatorio"),
+    
+    // Relatório
     modalRelatorio: document.getElementById("modalRelatorio"),
     filtroRelatorio: document.getElementById("filtroRelatorio"),
     grupoFiltroEspecifico: document.getElementById("grupoFiltroEspecifico"),
@@ -77,25 +206,47 @@ const elementos = {
     dataGeracao: document.getElementById("dataGeracao")
 };
 
-// Estado da aplicação
-let estado = {
-    licencaSelecionada: null,
-    modoEdicao: false,
-    modoAdicao: false,
-    dadosFiltrados: [...licencas],
-    editingCell: null
-};
-
 // ======= INICIALIZAÇÃO =======
-document.addEventListener('DOMContentLoaded', function() {
-    inicializarAplicacao();
-});
-
-function inicializarAplicacao() {
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('🚀 Iniciando controle de licenças...');
+    
+    // Inicializar Firebase
+    const firebaseInicializado = inicializarFirebase();
+    
+    // Carregar dados
+    licencas = await carregarLicencas();
+    estado.dadosFiltrados = [...licencas];
+    
     renderizarTabela();
     configurarEventListeners();
+    configurarModosVisualizacao();
+    
+    console.log(`🎯 Controle de licenças iniciado com ${licencas.length} licenças`);
+    console.log(`🌐 Firebase: ${firebaseInicializado ? 'CONECTADO' : 'OFFLINE'}`);
+});
+
+// ======= CONTROLE DE MODOS =======
+function configurarModosVisualizacao() {
+    if (elementos.btnModoCadastro) {
+        elementos.btnModoCadastro.addEventListener('click', function() {
+            estado.modoAtual = 'cadastro';
+            elementos.modoCadastro.style.display = 'block';
+            elementos.modoVisualizacao.style.display = 'none';
+            this.style.display = 'none';
+        });
+    }
+    
+    if (elementos.btnVoltarVisualizacao) {
+        elementos.btnVoltarVisualizacao.addEventListener('click', function() {
+            estado.modoAtual = 'visualizacao';
+            elementos.modoCadastro.style.display = 'none';
+            elementos.modoVisualizacao.style.display = 'block';
+            elementos.btnModoCadastro.style.display = 'block';
+        });
+    }
 }
 
+// ======= CONFIGURAÇÃO DE EVENTOS =======
 function configurarEventListeners() {
     // Pesquisa em tempo real
     elementos.searchInput.addEventListener("input", filtrarLicencas);
@@ -115,6 +266,17 @@ function configurarEventListeners() {
     
     if (elementos.btnGerarRelatorio) {
         elementos.btnGerarRelatorio.addEventListener("click", abrirModalRelatorio);
+    }
+    
+    // Formulário Detalhado
+    if (elementos.formCadastroDetalhado) {
+        elementos.formCadastroDetalhado.addEventListener("submit", salvarLicencaDetalhada);
+    }
+    
+    // Auto-calcular campo "Sem Uso"
+    if (elementos.cadTotalLicencas && elementos.cadEmUso) {
+        elementos.cadTotalLicencas.addEventListener('input', calcularSemUso);
+        elementos.cadEmUso.addEventListener('input', calcularSemUso);
     }
     
     // Relatório
@@ -155,6 +317,116 @@ function configurarEventListeners() {
     });
 }
 
+// ======= FUNÇÕES DO FORMULÁRIO DETALHADO =======
+function calcularSemUso() {
+    if (!elementos.cadTotalLicencas || !elementos.cadSemUso) return;
+    
+    const total = parseInt(elementos.cadTotalLicencas.value) || 0;
+    const emUso = parseInt(elementos.cadEmUso.value) || 0;
+    const semUso = total - emUso;
+    
+    elementos.cadSemUso.value = semUso >= 0 ? semUso : 0;
+}
+
+async function salvarLicencaDetalhada(e) {
+    e.preventDefault();
+    
+    // Coletar dados do formulário detalhado
+    const licencaDetalhada = {
+        software: elementos.cadSoftware.value.trim(),
+        versao: elementos.cadVersao.value.trim(),
+        tipo: elementos.cadTipo.value,
+        categoria: elementos.cadCategoria.value.trim(),
+        licencas: parseInt(elementos.cadTotalLicencas.value),
+        emUso: parseInt(elementos.cadEmUso.value),
+        semUso: parseInt(elementos.cadSemUso.value),
+        dataCompra: elementos.cadDataCompra.value,
+        dataExpiracao: elementos.cadDataExpiracao.value,
+        data: formatarDataParaBR(elementos.cadDataExpiracao.value),
+        valor: parseFloat(elementos.cadValor.value) || 0,
+        moeda: elementos.cadMoeda.value,
+        periodicidadePagamento: elementos.cadPeriodicidadePagamento.value,
+        fornecedor: elementos.cadFornecedor.value.trim(),
+        contato: elementos.cadContato.value.trim(),
+        emailContato: elementos.cadEmailContato.value.trim(),
+        telefoneContato: elementos.cadTelefoneContato.value.trim(),
+        observacoes: elementos.cadObservacoes.value.trim(),
+        linkContrato: elementos.cadLinkContrato.value.trim(),
+        status: calcularStatus(elementos.cadDataExpiracao.value),
+        dataCadastro: new Date().toISOString()
+    };
+    
+    // Validações
+    if (!licencaDetalhada.software || !licencaDetalhada.versao) {
+        mostrarNotificacao('Preencha o nome do software e versão!', 'erro');
+        return;
+    }
+    
+    if (licencaDetalhada.licencas < 1) {
+        mostrarNotificacao('O número total de licenças deve ser maior que zero!', 'erro');
+        return;
+    }
+    
+    if (licencaDetalhada.emUso + licencaDetalhada.semUso !== licencaDetalhada.licencas) {
+        mostrarNotificacao('A soma de "Em Uso" + "Sem Uso" deve ser igual ao Total de Licenças!', 'erro');
+        return;
+    }
+    
+    if (!licencaDetalhada.dataExpiracao) {
+        mostrarNotificacao('Informe a data de expiração!', 'erro');
+        return;
+    }
+    
+    // Verificar duplicata
+    const duplicata = licencas.find(lic => 
+        lic.software === licencaDetalhada.software && 
+        lic.versao === licencaDetalhada.versao
+    );
+    
+    if (duplicata) {
+        mostrarNotificacao('Já existe uma licença com este software e versão!', 'erro');
+        return;
+    }
+    
+    // Adicionar aos dados
+    licencas.unshift(licencaDetalhada);
+    
+    // Salvar dados
+    await salvarLicencas();
+    
+    // Atualizar visualização
+    estado.dadosFiltrados = [...licencas];
+    renderizarTabela();
+    
+    // Limpar formulário e voltar para visualização
+    elementos.formCadastroDetalhado.reset();
+    elementos.btnVoltarVisualizacao.click();
+    
+    mostrarNotificacao('Licença cadastrada com sucesso! 🎉');
+}
+
+function formatarDataParaBR(dataISO) {
+    if (!dataISO) return '';
+    const date = new Date(dataISO);
+    const dia = String(date.getDate()).padStart(2, '0');
+    const mes = String(date.getMonth() + 1).padStart(2, '0');
+    const ano = date.getFullYear();
+    return `${dia}/${mes}/${ano}`;
+}
+
+function calcularStatus(dataExpiracao) {
+    if (!dataExpiracao) return 'Ativa';
+    
+    const hoje = new Date();
+    const expiracao = new Date(dataExpiracao);
+    const diffTime = expiracao - hoje;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) return 'Expirada';
+    if (diffDays <= 30) return 'Em Renovação';
+    return 'Ativa';
+}
+
 // ======= RENDERIZAÇÃO DA TABELA =======
 function renderizarTabela(dados = estado.dadosFiltrados) {
     elementos.tabela.innerHTML = "";
@@ -162,9 +434,10 @@ function renderizarTabela(dados = estado.dadosFiltrados) {
     if (dados.length === 0) {
         elementos.tabela.innerHTML = `
             <tr>
-                <td colspan="7" style="text-align: center; padding: 20px; color: #666;">
-                    <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
-                    Nenhuma licença encontrada
+                <td colspan="8" style="text-align: center; padding: 40px; color: #666;">
+                    <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
+                    <h3 style="margin: 0 0 10px 0; font-weight: 500;">Nenhuma licença cadastrada</h3>
+                    <p style="margin: 0; opacity: 0.7;">Use o "Modo Cadastro" para adicionar sua primeira licença</p>
                 </td>
             </tr>
         `;
@@ -177,6 +450,11 @@ function renderizarTabela(dados = estado.dadosFiltrados) {
         
         // Calcular percentual de uso para cor
         const percentualUso = (licenca.emUso / licenca.licencas) * 100;
+        
+        // Determinar classe do status
+        let statusClass = 'status-ativo';
+        if (licenca.status === 'Expirada') statusClass = 'status-inativo';
+        if (licenca.status === 'Em Renovação') statusClass = 'status-manutencao';
         
         tr.innerHTML = `
             <td class="editable" data-field="software">${licenca.software}</td>
@@ -195,6 +473,7 @@ function renderizarTabela(dados = estado.dadosFiltrados) {
                 </div>
             </td>
             <td class="editable" data-field="data">${licenca.data}</td>
+            <td><span class="status-badge ${statusClass}">${licenca.status}</span></td>
             <td>
                 <div class="actions">
                     <button class="action-btn visualizar-btn" title="Visualizar">
@@ -214,221 +493,6 @@ function renderizarTabela(dados = estado.dadosFiltrados) {
     
     configurarEventosBotoes();
     configurarEdicaoInline();
-}
-
-function configurarEventosBotoes() {
-    // Botões de visualizar
-    document.querySelectorAll('.visualizar-btn').forEach((btn) => {
-        btn.addEventListener('click', (e) => {
-            const tr = e.target.closest('tr');
-            const filteredIndex = parseInt(tr.getAttribute('data-index'));
-            const licencaFiltrada = estado.dadosFiltrados[filteredIndex];
-            const originalIndex = licencas.findIndex(lic => 
-                lic.software === licencaFiltrada.software && 
-                lic.versao === licencaFiltrada.versao
-            );
-            
-            if (originalIndex !== -1) {
-                visualizarLicenca(originalIndex);
-            }
-        });
-    });
-    
-    // Botões de editar
-    document.querySelectorAll('.editar-btn').forEach((btn) => {
-        btn.addEventListener('click', (e) => {
-            const tr = e.target.closest('tr');
-            const filteredIndex = parseInt(tr.getAttribute('data-index'));
-            const licencaFiltrada = estado.dadosFiltrados[filteredIndex];
-            const originalIndex = licencas.findIndex(lic => 
-                lic.software === licencaFiltrada.software && 
-                lic.versao === licencaFiltrada.versao
-            );
-            
-            if (originalIndex !== -1) {
-                editarLicenca(originalIndex);
-            }
-        });
-    });
-    
-    // Botões de excluir
-    document.querySelectorAll('.excluir-btn').forEach((btn) => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const tr = e.target.closest('tr');
-            const filteredIndex = parseInt(tr.getAttribute('data-index'));
-            const licencaFiltrada = estado.dadosFiltrados[filteredIndex];
-            const originalIndex = licencas.findIndex(lic => 
-                lic.software === licencaFiltrada.software && 
-                lic.versao === licencaFiltrada.versao
-            );
-            
-            if (originalIndex !== -1) {
-                excluirLicenca(originalIndex);
-            }
-        });
-    });
-}
-
-// ======= MODAL FUNCTIONS =======
-function abrirModalNovaLicenca() {
-    estado.modoAdicao = true;
-    estado.modoEdicao = true;
-    estado.licencaSelecionada = null;
-    
-    // Limpar campos
-    const campos = ['modalSoftware', 'modalVersao', 'modalLicencas', 'modalEmUso', 'modalSemUso', 'modalData', 'modalFornecedor', 'modalValor', 'modalContato', 'modalObservacoes'];
-    campos.forEach(campo => {
-        if (elementos[campo]) elementos[campo].value = '';
-    });
-    
-    // Configurar UI
-    elementos.modalTitle.textContent = 'Nova Licença';
-    elementos.salvarBtn.style.display = 'block';
-    elementos.modal.style.display = 'flex';
-    
-    setTimeout(() => {
-        elementos.modalSoftware.focus();
-    }, 100);
-}
-
-function visualizarLicenca(index) {
-    estado.licencaSelecionada = index;
-    estado.modoEdicao = false;
-    estado.modoAdicao = false;
-    abrirModal(licencas[index], false);
-}
-
-function editarLicenca(index) {
-    estado.licencaSelecionada = index;
-    estado.modoEdicao = true;
-    estado.modoAdicao = false;
-    abrirModal(licencas[index], true);
-}
-
-function abrirModal(licenca, editavel) {
-    // Preencher campos principais
-    elementos.modalSoftware.value = licenca.software || '';
-    elementos.modalVersao.value = licenca.versao || '';
-    elementos.modalLicencas.value = licenca.licencas || '';
-    elementos.modalEmUso.value = licenca.emUso || '';
-    elementos.modalSemUso.value = licenca.semUso || '';
-    elementos.modalData.value = licenca.data || '';
-    
-    // Preencher campos adicionais (se existirem)
-    if (elementos.modalFornecedor) elementos.modalFornecedor.value = licenca.fornecedor || '';
-    if (elementos.modalValor) elementos.modalValor.value = licenca.valor || '';
-    if (elementos.modalContato) elementos.modalContato.value = licenca.contato || '';
-    if (elementos.modalObservacoes) elementos.modalObservacoes.value = licenca.observacoes || '';
-    
-    // Configurar estado dos campos
-    const campos = ['modalSoftware', 'modalVersao', 'modalLicencas', 'modalEmUso', 'modalSemUso', 'modalData', 'modalFornecedor', 'modalValor', 'modalContato', 'modalObservacoes'];
-    campos.forEach(campo => {
-        if (elementos[campo]) elementos[campo].disabled = !editavel;
-    });
-    
-    // Configurar título e botão
-    elementos.modalTitle.textContent = editavel ? 'Editar Licença' : 'Visualizar Licença';
-    elementos.salvarBtn.style.display = editavel ? 'block' : 'none';
-    elementos.modal.style.display = 'flex';
-}
-
-function fecharModal() {
-    elementos.modal.style.display = 'none';
-    elementos.formLicenca.reset();
-    estado.licencaSelecionada = null;
-    estado.modoEdicao = false;
-    estado.modoAdicao = false;
-}
-
-function salvarLicenca() {
-    // Coletar dados principais
-    const software = elementos.modalSoftware.value.trim();
-    const versao = elementos.modalVersao.value.trim();
-    const numLicencas = parseInt(elementos.modalLicencas.value);
-    const emUso = parseInt(elementos.modalEmUso.value);
-    const semUso = parseInt(elementos.modalSemUso.value);
-    const data = elementos.modalData.value.trim();
-    
-    // Coletar dados adicionais
-    const fornecedor = elementos.modalFornecedor?.value.trim() || '';
-    const valor = elementos.modalValor?.value.trim() || '';
-    const contato = elementos.modalContato?.value.trim() || '';
-    const observacoes = elementos.modalObservacoes?.value.trim() || '';
-    
-    // Validações
-    if (!software || !versao || isNaN(numLicencas) || numLicencas < 1 || 
-        isNaN(emUso) || emUso < 0 || isNaN(semUso) || semUso < 0 || !data) {
-        mostrarNotificacao('Preencha todos os campos obrigatórios!', 'erro');
-        return;
-    }
-    
-    // Validar se a soma bate
-    if (emUso + semUso !== numLicencas) {
-        mostrarNotificacao('A soma de "Em Uso" + "Sem Uso" deve ser igual à Quantidade Total!', 'erro');
-        return;
-    }
-    
-    // Validar formato da data
-    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(data)) {
-        mostrarNotificacao('Formato de data inválido! Use DD/MM/AAAA', 'erro');
-        return;
-    }
-    
-    if (estado.modoAdicao) {
-        // Verificar duplicata
-        if (licencas.find(lic => lic.software === software && lic.versao === versao)) {
-            mostrarNotificacao('Já existe uma licença com este software e versão!', 'erro');
-            return;
-        }
-        
-        // Adicionar nova licença
-        const novaLicenca = {
-            software,
-            versao,
-            licencas: numLicencas,
-            emUso,
-            semUso,
-            data,
-            status: "Ativa",
-            fornecedor,
-            valor,
-            contato,
-            observacoes
-        };
-        
-        licencas.unshift(novaLicenca);
-        mostrarNotificacao('Licença adicionada com sucesso!');
-    } else if (estado.modoEdicao && estado.licencaSelecionada !== null) {
-        // Editar licença existente
-        licencas[estado.licencaSelecionada] = {
-            ...licencas[estado.licencaSelecionada],
-            software,
-            versao,
-            licencas: numLicencas,
-            emUso,
-            semUso,
-            data,
-            fornecedor,
-            valor,
-            contato,
-            observacoes
-        };
-        mostrarNotificacao('Licença atualizada com sucesso!');
-    }
-    
-    // Atualizar tabela
-    filtrarLicencas();
-    fecharModal();
-}
-
-async function excluirLicenca(index) {
-    if (!confirm(`Tem certeza que deseja excluir a licença "${licencas[index].software}"?`)) return;
-    
-    licencas.splice(index, 1);
-    estado.dadosFiltrados = [...licencas];
-    renderizarTabela();
-    mostrarNotificacao('Licença excluída com sucesso!');
 }
 
 // ======= FILTROS E PESQUISA =======
@@ -507,7 +571,7 @@ function gerarRelatorio() {
         if (ordenacao === 'quantidade') {
             return b.licencas - a.licencas;
         } else if (ordenacao === 'data') {
-            return new Date(a.data.split('/').reverse().join('-')) - new Date(b.data.split('/').reverse().join('-'));
+            return new Date(a.dataExpiracao) - new Date(b.dataExpiracao);
         }
         return a[ordenacao].localeCompare(b[ordenacao]);
     });
@@ -519,18 +583,30 @@ function gerarRelatorio() {
     
     if (elementos.corpoRelatorio) {
         elementos.corpoRelatorio.innerHTML = '';
-        dadosRelatorio.forEach(licenca => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${licenca.software}</td>
-                <td>${licenca.versao}</td>
-                <td>${licenca.licencas}</td>
-                <td>${licenca.emUso}</td>
-                <td>${licenca.semUso}</td>
-                <td>${licenca.data}</td>
+        
+        if (dadosRelatorio.length === 0) {
+            elementos.corpoRelatorio.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 20px; color: #666;">
+                        Nenhuma licença encontrada para o filtro selecionado
+                    </td>
+                </tr>
             `;
-            elementos.corpoRelatorio.appendChild(tr);
-        });
+        } else {
+            dadosRelatorio.forEach(licenca => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${licenca.software}</td>
+                    <td>${licenca.versao}</td>
+                    <td>${licenca.licencas}</td>
+                    <td>${licenca.emUso}</td>
+                    <td>${licenca.semUso}</td>
+                    <td>${licenca.data}</td>
+                    <td>${licenca.status}</td>
+                `;
+                elementos.corpoRelatorio.appendChild(tr);
+            });
+        }
     }
     
     if (elementos.areaRelatorio) elementos.areaRelatorio.style.display = 'block';
@@ -539,6 +615,171 @@ function gerarRelatorio() {
 
 function imprimirRelatorio() {
     window.print();
+}
+
+// ======= MODAL FUNCTIONS (Existente) =======
+function abrirModalNovaLicenca() {
+    estado.modoAdicao = true;
+    estado.modoEdicao = true;
+    estado.licencaSelecionada = null;
+    
+    // Limpar campos
+    const campos = ['modalSoftware', 'modalVersao', 'modalLicencas', 'modalEmUso', 'modalSemUso', 'modalData', 'modalFornecedor', 'modalValor', 'modalContato', 'modalObservacoes'];
+    campos.forEach(campo => {
+        if (elementos[campo]) elementos[campo].value = '';
+    });
+    
+    // Configurar UI
+    elementos.modalTitle.textContent = 'Nova Licença';
+    elementos.salvarBtn.style.display = 'block';
+    elementos.modal.style.display = 'flex';
+    
+    setTimeout(() => {
+        elementos.modalSoftware.focus();
+    }, 100);
+}
+
+function visualizarLicenca(index) {
+    estado.licencaSelecionada = index;
+    estado.modoEdicao = false;
+    estado.modoAdicao = false;
+    abrirModal(licencas[index], false);
+}
+
+function editarLicenca(index) {
+    estado.licencaSelecionada = index;
+    estado.modoEdicao = true;
+    estado.modoAdicao = false;
+    abrirModal(licencas[index], true);
+}
+
+function abrirModal(licenca, editavel) {
+    // Preencher campos principais
+    elementos.modalSoftware.value = licenca.software || '';
+    elementos.modalVersao.value = licenca.versao || '';
+    elementos.modalLicencas.value = licenca.licencas || '';
+    elementos.modalEmUso.value = licenca.emUso || '';
+    elementos.modalSemUso.value = licenca.semUso || '';
+    elementos.modalData.value = licenca.data || '';
+    
+    // Preencher campos adicionais (se existirem)
+    if (elementos.modalFornecedor) elementos.modalFornecedor.value = licenca.fornecedor || '';
+    if (elementos.modalValor) elementos.modalValor.value = licenca.valor || '';
+    if (elementos.modalContato) elementos.modalContato.value = licenca.contato || '';
+    if (elementos.modalObservacoes) elementos.modalObservacoes.value = licenca.observacoes || '';
+    
+    // Configurar estado dos campos
+    const campos = ['modalSoftware', 'modalVersao', 'modalLicencas', 'modalEmUso', 'modalSemUso', 'modalData', 'modalFornecedor', 'modalValor', 'modalContato', 'modalObservacoes'];
+    campos.forEach(campo => {
+        if (elementos[campo]) elementos[campo].disabled = !editavel;
+    });
+    
+    // Configurar título e botão
+    elementos.modalTitle.textContent = editavel ? 'Editar Licença' : 'Visualizar Licença';
+    elementos.salvarBtn.style.display = editavel ? 'block' : 'none';
+    elementos.modal.style.display = 'flex';
+}
+
+function fecharModal() {
+    elementos.modal.style.display = 'none';
+    elementos.formLicenca.reset();
+    estado.licencaSelecionada = null;
+    estado.modoEdicao = false;
+    estado.modoAdicao = false;
+}
+
+async function salvarLicenca() {
+    // Coletar dados principais
+    const software = elementos.modalSoftware.value.trim();
+    const versao = elementos.modalVersao.value.trim();
+    const numLicencas = parseInt(elementos.modalLicencas.value);
+    const emUso = parseInt(elementos.modalEmUso.value);
+    const semUso = parseInt(elementos.modalSemUso.value);
+    const data = elementos.modalData.value.trim();
+    
+    // Coletar dados adicionais
+    const fornecedor = elementos.modalFornecedor?.value.trim() || '';
+    const valor = elementos.modalValor?.value.trim() || '';
+    const contato = elementos.modalContato?.value.trim() || '';
+    const observacoes = elementos.modalObservacoes?.value.trim() || '';
+    
+    // Validações
+    if (!software || !versao || isNaN(numLicencas) || numLicencas < 1 || 
+        isNaN(emUso) || emUso < 0 || isNaN(semUso) || semUso < 0 || !data) {
+        mostrarNotificacao('Preencha todos os campos obrigatórios!', 'erro');
+        return;
+    }
+    
+    // Validar se a soma bate
+    if (emUso + semUso !== numLicencas) {
+        mostrarNotificacao('A soma de "Em Uso" + "Sem Uso" deve ser igual à Quantidade Total!', 'erro');
+        return;
+    }
+    
+    // Validar formato da data
+    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(data)) {
+        mostrarNotificacao('Formato de data inválido! Use DD/MM/AAAA', 'erro');
+        return;
+    }
+    
+    if (estado.modoAdicao) {
+        // Verificar duplicata
+        if (licencas.find(lic => lic.software === software && lic.versao === versao)) {
+            mostrarNotificacao('Já existe uma licença com este software e versão!', 'erro');
+            return;
+        }
+        
+        // Adicionar nova licença
+        const novaLicenca = {
+            software,
+            versao,
+            licencas: numLicencas,
+            emUso,
+            semUso,
+            data,
+            status: "Ativa",
+            fornecedor,
+            valor,
+            contato,
+            observacoes
+        };
+        
+        licencas.unshift(novaLicenca);
+        mostrarNotificacao('Licença adicionada com sucesso!');
+    } else if (estado.modoEdicao && estado.licencaSelecionada !== null) {
+        // Editar licença existente
+        licencas[estado.licencaSelecionada] = {
+            ...licencas[estado.licencaSelecionada],
+            software,
+            versao,
+            licencas: numLicencas,
+            emUso,
+            semUso,
+            data,
+            fornecedor,
+            valor,
+            contato,
+            observacoes
+        };
+        mostrarNotificacao('Licença atualizada com sucesso!');
+    }
+    
+    // Salvar dados
+    await salvarLicencas();
+    
+    // Atualizar tabela
+    filtrarLicencas();
+    fecharModal();
+}
+
+async function excluirLicenca(index) {
+    if (!confirm(`Tem certeza que deseja excluir a licença "${licencas[index].software}"?`)) return;
+    
+    licencas.splice(index, 1);
+    await salvarLicencas();
+    estado.dadosFiltrados = [...licencas];
+    renderizarTabela();
+    mostrarNotificacao('Licença excluída com sucesso!');
 }
 
 // ======= EDIÇÃO INLINE =======
@@ -597,7 +838,7 @@ function iniciarEdicaoInline(e) {
     });
 }
 
-function finalizarEdicaoInline(novoValor) {
+async function finalizarEdicaoInline(novoValor) {
     if (!estado.editingCell) return;
     
     const { cell, field, originalIndex, filteredIndex, originalValue } = estado.editingCell;
@@ -626,6 +867,9 @@ function finalizarEdicaoInline(novoValor) {
     if (field === 'data') {
         estado.dadosFiltrados[filteredIndex].status = licencas[originalIndex].status;
     }
+    
+    // Salvar dados
+    await salvarLicencas();
     
     // Atualizar célula
     cell.textContent = valorFinal;
@@ -673,6 +917,60 @@ function mostrarNotificacao(mensagem, tipo = 'sucesso') {
     setTimeout(() => {
         elementos.alerta.style.display = 'none';
     }, 3000);
+}
+
+function configurarEventosBotoes() {
+    // Botões de visualizar
+    document.querySelectorAll('.visualizar-btn').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+            const tr = e.target.closest('tr');
+            const filteredIndex = parseInt(tr.getAttribute('data-index'));
+            const licencaFiltrada = estado.dadosFiltrados[filteredIndex];
+            const originalIndex = licencas.findIndex(lic => 
+                lic.software === licencaFiltrada.software && 
+                lic.versao === licencaFiltrada.versao
+            );
+            
+            if (originalIndex !== -1) {
+                visualizarLicenca(originalIndex);
+            }
+        });
+    });
+    
+    // Botões de editar
+    document.querySelectorAll('.editar-btn').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+            const tr = e.target.closest('tr');
+            const filteredIndex = parseInt(tr.getAttribute('data-index'));
+            const licencaFiltrada = estado.dadosFiltrados[filteredIndex];
+            const originalIndex = licencas.findIndex(lic => 
+                lic.software === licencaFiltrada.software && 
+                lic.versao === licencaFiltrada.versao
+            );
+            
+            if (originalIndex !== -1) {
+                editarLicenca(originalIndex);
+            }
+        });
+    });
+    
+    // Botões de excluir
+    document.querySelectorAll('.excluir-btn').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const tr = e.target.closest('tr');
+            const filteredIndex = parseInt(tr.getAttribute('data-index'));
+            const licencaFiltrada = estado.dadosFiltrados[filteredIndex];
+            const originalIndex = licencas.findIndex(lic => 
+                lic.software === licencaFiltrada.software && 
+                lic.versao === licencaFiltrada.versao
+            );
+            
+            if (originalIndex !== -1) {
+                excluirLicenca(originalIndex);
+            }
+        });
+    });
 }
 
 // Renderizar tabela inicial
