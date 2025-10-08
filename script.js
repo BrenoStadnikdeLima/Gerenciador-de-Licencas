@@ -637,6 +637,25 @@ function fecharModalIndividual() {
     if (elementosIndividuais.form) {
         elementosIndividuais.form.reset();
     }
+    
+    // Reabilitar todos os campos ao fechar
+    const campos = ['software', 'chaveAtivacao', 'usuario', 'hostname', 'patrimonio', 'status', 'numeroPedido', 'chamado', 'dataPedido', 'preco'];
+    campos.forEach(campo => {
+        if (elementosIndividuais[campo]) {
+            elementosIndividuais[campo].disabled = false;
+            // Resetar estilos
+            elementosIndividuais[campo].style.opacity = '';
+            elementosIndividuais[campo].style.color = '';
+            elementosIndividuais[campo].style.backgroundColor = '';
+            elementosIndividuais[campo].style.cursor = '';
+        }
+    });
+    
+    // Ocultar seção adicional
+    if (elementosIndividuais.infoAdicionais) {
+        elementosIndividuais.infoAdicionais.style.display = 'none';
+    }
+    
     estadoIndividual.licencaSelecionada = null;
     estadoIndividual.modoEdicao = false;
     estadoIndividual.modoAdicao = false;
@@ -965,6 +984,9 @@ function atualizarFiltroSoftwares() {
 function atualizarSelectSoftwares() {
     if (!elementosIndividuais.software) return;
     
+    // Salvar o valor atual antes de limpar
+    const valorAtual = elementosIndividuais.software.value;
+    
     // Limpar opções
     elementosIndividuais.software.innerHTML = '<option value="">Selecione o software</option>';
     
@@ -979,6 +1001,25 @@ function atualizarSelectSoftwares() {
         option.textContent = software;
         elementosIndividuais.software.appendChild(option);
     });
+    
+    // Se estiver em modo de edição, restaurar o valor anterior
+    if (estadoIndividual.modoEdicao && !estadoIndividual.modoAdicao && valorAtual) {
+        // Verificar se o software ainda existe na lista
+        const existe = Array.from(elementosIndividuais.software.options).some(option => 
+            option.value === valorAtual
+        );
+        
+        if (!existe) {
+            // Adicionar o software atual à lista se não existir
+            const option = document.createElement('option');
+            option.value = valorAtual;
+            option.textContent = valorAtual;
+            elementosIndividuais.software.appendChild(option);
+        }
+        
+        // Restaurar o valor
+        elementosIndividuais.software.value = valorAtual;
+    }
 }
 
 // ======= FUNÇÕES UTILITÁRIAS =======
@@ -1191,33 +1232,10 @@ function gerarRelatorioIndividuais() {
         }
     }
     
-    // Atualizar resumo
+    // REMOVER A SEÇÃO DE RESUMO COMPLETAMENTE
     if (resumoRelatorio) {
-        const total = dadosRelatorio.length;
-        const ativas = dadosRelatorio.filter(l => l.status === 'Ativa').length;
-        const inativas = dadosRelatorio.filter(l => l.status === 'Inativa').length;
-        const expiradas = dadosRelatorio.filter(l => l.status === 'Expirada').length;
-        
-        resumoRelatorio.innerHTML = `
-            <div class="resumo-stats">
-                <div class="stat-item">
-                    <span class="stat-number">${total}</span>
-                    <span class="stat-label">Total de Licenças</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" style="color: #28a745;">${ativas}</span>
-                    <span class="stat-label">Ativas</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" style="color: #ffc107;">${inativas}</span>
-                    <span class="stat-label">Inativas</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" style="color: #dc3545;">${expiradas}</span>
-                    <span class="stat-label">Expiradas</span>
-                </div>
-            </div>
-        `;
+        resumoRelatorio.innerHTML = ''; // Limpa qualquer conteúdo
+        resumoRelatorio.style.display = 'none'; // Oculta a seção
     }
     
     // Mostrar relatório

@@ -278,40 +278,44 @@
     </div>
 
     <!-- Área do Relatório Individual para Impressão -->
-    <div id="areaRelatorioIndividuais" class="relatorio-container" style="display: none;">
-      <div class="cabecalho-relatorio">
-        <h1 class="titulo-relatorio">Relatório de Licenças Individuais</h1>
-        <p class="data-relatorio" id="dataRelatorioIndividuais">Data: </p>
-      </div>
-      
-      <table id="tabelaRelatorioIndividuais" class="tabela-relatorio">
-        <thead>
-          <tr>
-            <th>Software</th>
-            <th>Chave de Ativação</th>
-            <th>Usuário</th>
-            <th>Hostname</th>
-            <th>Patrimônio</th>
-            <th>Status</th>
-            <th>Nº Pedido</th>
-            <th>Data Cadastro</th>
-          </tr>
-        </thead>
-        <tbody id="corpoRelatorioIndividuais">
-          <!-- Dados serão preenchidos via JavaScript -->
-        </tbody>
-      </table>
-      
-      <div class="resumo-relatorio" id="resumoRelatorioIndividuais">
-        <!-- Resumo será preenchido via JavaScript -->
-      </div>
-      
-      <div class="rodape-relatorio">
-        <p>Relatório gerado em <span id="dataGeracaoIndividuais"></span></p>
-        <p class="assinatura">___________________________________</p>
-        <p>Responsável</p>
-      </div>  
+<!-- Área do Relatório Individual para Impressão -->
+<div id="areaRelatorioIndividuais" class="relatorio-container" style="display: none;">
+  <div class="cabecalho-relatorio">
+    <h1 class="titulo-relatorio">Relatório de Licenças Individuais</h1>
+    <p class="data-relatorio" id="dataRelatorioIndividuais">Data: </p>
+  </div>
+  
+  <table id="tabelaRelatorioIndividuais" class="tabela-relatorio">
+    <thead>
+      <tr>
+        <th>Software</th>
+        <th>Chave de Ativação</th>
+        <th>Usuário</th>
+        <th>Hostname</th>
+        <th>Patrimônio</th>
+        <th>Status</th>
+        <th>Nº Pedido</th>
+        <th>Data Cadastro</th>
+      </tr>
+    </thead>
+    <tbody id="corpoRelatorioIndividuais">
+      <!-- Dados serão preenchidos via JavaScript -->
+    </tbody>
+  </table>
+  
+<div class="rodape-relatorio">
+    <div class="assinaturas-container">
+        <div class="assinatura-item">
+            <p class="linha-assinatura">___________________________________</p>
+            <p class="nome-assinatura">Responsável TCI</p>
+        </div>
+        <div class="assinatura-item">
+            <p class="linha-assinatura">___________________________________</p>
+            <p class="nome-assinatura">Responsável do Setor</p>
+        </div>
     </div>
+    <p class="data-geracao">Relatório gerado em <span id="dataGeracaoIndividuais"></span></p>
+</div>
 
     <!-- Notificação de Sucesso -->
     <div id="alertaSucesso" class="notification">

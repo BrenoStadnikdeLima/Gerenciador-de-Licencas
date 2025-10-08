@@ -616,6 +616,38 @@ body {
   transform: translateY(-1px);
 }
 
+/* Estilos para campos desabilitados mas visíveis */
+.form-input:disabled {
+  opacity: 1 !important;
+  color: var(--text-dark) !important;
+  background-color: #f8f9fa !important;
+  border-color: var(--border-color) !important;
+  cursor: not-allowed !important;
+}
+
+.software-select:disabled {
+  background-image: none !important;
+  opacity: 1 !important;
+  color: var(--text-dark) !important;
+  background-color: #f8f9fa !important;
+}
+
+/* Feedback visual para campo software desabilitado */
+.software-select-container:has(.software-select:disabled) {
+  position: relative;
+}
+
+.software-select-container:has(.software-select:disabled)::after {
+  content: "🔒";
+  position: absolute;
+  right: 50px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: var(--text-light);
+  z-index: 2;
+}
+
 /* Container para seleção de software */
 .software-select-container {
   display: flex;
@@ -708,16 +740,34 @@ body {
   background: white;
   padding: 40px;
   max-width: 1000px;
-  margin: 0 auto;
+  margin: 30px auto;
   box-shadow: var(--shadow);
   border-radius: 12px;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+/* Quando o relatório está oculto */
+.relatorio-container[style*="display: none"] {
+  display: none !important;
 }
 
 .cabecalho-relatorio {
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 30px;
   padding-bottom: 20px;
   border-bottom: 2px solid var(--border-color);
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.cabecalho-relatorio > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
 }
 
 .titulo-relatorio {
@@ -732,10 +782,18 @@ body {
   font-size: 1.1rem;
 }
 
+/* Botão fechar relatório */
+#fecharRelatorio {
+  margin-bottom: 20px;
+  align-self: flex-start;
+}
+
+/* Garantir bordas na tabela do relatório */
 .tabela-relatorio {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 30px;
+  border: 1px solid var(--border-color) !important;
 }
 
 .tabela-relatorio th {
@@ -744,62 +802,60 @@ body {
   padding: 15px 12px;
   text-align: left;
   font-weight: 600;
-  border: none;
+  border: 1px solid var(--border-color) !important;
 }
 
 .tabela-relatorio td {
   padding: 12px;
   border-bottom: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color) !important;
+  border-left: 1px solid var(--border-color) !important;
 }
 
-.tabela-relatorio tbody tr:hover {
-  background: var(--light-gray);
+.tabela-relatorio tbody tr {
+  border-bottom: 1px solid var(--border-color);
 }
 
-.resumo-relatorio {
-  background: var(--light-gray);
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 30px;
+.tabela-relatorio tbody tr:last-child {
+  border-bottom: 1px solid var(--border-color);
 }
 
-.resumo-stats {
+/* Container para assinaturas lado a lado */
+.assinaturas-container {
   display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  gap: 20px;
+  justify-content: space-between;
+  gap: 60px;
+  margin: 50px 0 30px 0;
+  align-items: flex-start;
 }
 
-.stat-item {
+.assinatura-item {
   text-align: center;
   flex: 1;
-  min-width: 120px;
+  min-width: 250px;
 }
 
-.stat-number {
-  font-size: 2rem;
-  font-weight: 700;
-  display: block;
-  color: var(--primary-blue);
+.linha-assinatura {
+  margin: 40px 0 15px 0;
+  font-size: 1.2rem;
+  color: var(--text-dark);
+  min-height: 30px;
 }
 
-.stat-label {
-  font-size: 0.9rem;
-  color: var(--text-light);
-  margin-top: 5px;
+.nome-assinatura {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 1.1rem;
 }
 
-.rodape-relatorio {
+.data-geracao {
   text-align: center;
-  margin-top: 40px;
-  padding-top: 20px;
+  margin-top: 25px;
+  padding-top: 25px;
   border-top: 1px solid var(--border-color);
   color: var(--text-light);
-}
-
-.assinatura {
-  margin: 30px 0 10px;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 /* ======= NOTIFICAÇÕES ======= */
@@ -854,6 +910,14 @@ body {
   .licenses-table td {
     padding: 8px 6px;
   }
+  
+  .assinaturas-container {
+    gap: 40px;
+  }
+  
+  .assinatura-item {
+    min-width: 200px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -901,15 +965,6 @@ body {
     padding: 6px;
   }
   
-  .resumo-stats {
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .stat-item {
-    min-width: auto;
-  }
-  
   .nav-list {
     gap: 15px;
   }
@@ -936,6 +991,24 @@ body {
   .licenses-table td {
     padding: 10px 8px;
   }
+  
+  .assinaturas-container {
+    gap: 30px;
+    margin: 40px 0 25px 0;
+  }
+  
+  .assinatura-item {
+    min-width: 180px;
+  }
+  
+  .linha-assinatura {
+    font-size: 1.1rem;
+    margin: 35px 0 12px 0;
+  }
+  
+  .nome-assinatura {
+    font-size: 1rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -961,6 +1034,16 @@ body {
     padding: 10px 15px;
     font-size: 13px;
   }
+  
+  /* Apenas em telas muito pequenas que as assinaturas vão para baixo */
+  .assinaturas-container {
+    flex-direction: column;
+    gap: 25px;
+  }
+  
+  .assinatura-item {
+    min-width: auto;
+  }
 }
 
 /* ======= ESTILOS DE IMPRESSÃO ======= */
@@ -980,14 +1063,68 @@ body {
     top: 0;
     width: 100%;
     box-shadow: none;
-    padding: 0;
+    padding: 20px;
+    background: white;
   }
   
+  /* Garantir que as bordas apareçam na impressão */
+  .tabela-relatorio,
+  .tabela-relatorio th,
+  .tabela-relatorio td {
+    border: 1px solid #000 !important;
+    border-collapse: collapse;
+  }
+  
+  .tabela-relatorio th {
+    background: #f8f9fa !important;
+    color: #000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  /* Garantir que as assinaturas fiquem lado a lado na impressão */
+  .assinaturas-container {
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 60px !important;
+    margin: 50px 0 30px 0 !important;
+  }
+  
+  .assinatura-item {
+    flex: 1 !important;
+    min-width: auto !important;
+  }
+  
+  /* Ocultar elementos não necessários na impressão */
   .modal,
   .header,
   .filter-section,
-  .action-buttons {
+  .action-buttons,
+  .notification,
+  #fecharRelatorio {
     display: none !important;
+  }
+  
+  /* Melhorar legibilidade na impressão */
+  .titulo-relatorio {
+    font-size: 24px !important;
+    color: #000 !important;
+    margin-bottom: 15px !important;
+  }
+  
+  .data-relatorio {
+    font-size: 14px !important;
+    color: #666 !important;
+    margin-bottom: 20px !important;
+  }
+  
+  .tabela-relatorio {
+    font-size: 12px !important;
+  }
+  
+  .tabela-relatorio th,
+  .tabela-relatorio td {
+    padding: 8px 10px !important;
   }
 }
 
@@ -1046,4 +1183,19 @@ body {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Classe temporária para impressão */
+.relatorio-container.printing {
+    font-size: 12px;
+}
+
+.relatorio-container.printing .tabela-relatorio th,
+.relatorio-container.printing .tabela-relatorio td {
+    border: 1px solid #000 !important;
+    padding: 6px 8px !important;
+}
+
+.relatorio-container.printing .tabela-relatorio {
+    border: 1px solid #000 !important;
 }
