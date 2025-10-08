@@ -8,87 +8,6 @@
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    /* Estilos específicos para o modo cadastro */
-    .form-detalhado {
-      background: var(--bg-white);
-      padding: 30px;
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow-light);
-      margin-bottom: 40px;
-    }
-
-    .form-section {
-      margin-bottom: 30px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid var(--border-light);
-    }
-
-    .form-section:last-child {
-      border-bottom: none;
-    }
-
-    .form-section h3 {
-      color: var(--primary-blue);
-      margin-bottom: 20px;
-      font-size: 1.2rem;
-      font-weight: 600;
-    }
-
-    .form-actions {
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-      margin-top: 30px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border-light);
-    }
-
-    .cadastro-header {
-      text-align: center;
-      margin-bottom: 30px;
-      padding: 20px;
-      background: linear-gradient(135deg, var(--primary-blue), #2c5aa0);
-      color: white;
-      border-radius: var(--border-radius);
-    }
-
-    .cadastro-header h2 {
-      margin: 0 0 10px 0;
-      font-size: 2rem;
-    }
-
-    .cadastro-header p {
-      margin: 0;
-      opacity: 0.9;
-    }
-
-    textarea.form-input {
-      resize: vertical;
-      min-height: 100px;
-    }
-
-    .file-input-info {
-      font-size: 0.85rem;
-      color: var(--text-light);
-      margin-top: 5px;
-    }
-
-    /* Ajustes responsivos */
-    @media (max-width: 768px) {
-      .form-detalhado {
-        padding: 20px;
-      }
-      
-      .form-actions {
-        flex-direction: column;
-      }
-      
-      .cadastro-header h2 {
-        font-size: 1.5rem;
-      }
-    }
-  </style>
 </head>
 <body>
 
@@ -113,7 +32,7 @@
   <main class="main-content">
     <section class="container">
       <h1 class="page-title">Controle de Licenças</h1>
-      <p class="page-description">Gerencie todas as licenças de software da empresa de forma centralizada e eficiente.</p>
+      <p class="page-description">Visualize os totais de licenças de software calculados automaticamente a partir das licenças individuais.</p>
 
       <!-- Área de Pesquisa e Filtros -->
       <div class="filter-section">
@@ -133,21 +52,15 @@
           </select>
         </div>
 
-        <!-- BOTÕES DE AÇÃO -->
+        <!-- BOTÕES DE AÇÃO (APENAS RELATÓRIO) -->
         <div class="action-buttons">
-          <button type="button" id="btnModoCadastro" class="btn btn-primary">
-            <i class="fas fa-edit"></i> Modo Cadastro
-          </button>
-          <button type="button" id="novaLicenca" class="btn btn-success">
-            <i class="fas fa-plus"></i> Nova Licença
-          </button>
           <button type="button" id="gerarRelatorio" class="btn btn-info">
             <i class="fas fa-print"></i> Relatório
           </button>
         </div>
       </div>
 
-      <!-- Tabela de Licenças -->
+      <!-- Tabela de Licenças (SOMENTE LEITURA) -->
       <div class="table-container">
         <table id="tabelaLicencas" class="licenses-table">
           <thead>
@@ -159,7 +72,6 @@
               <th>SEM USO</th>
               <th>DATA DE EXPIRAÇÃO</th>
               <th>STATUS</th>
-              <th>AÇÕES</th>
             </tr>
           </thead>
           <tbody id="tableBody">
@@ -169,249 +81,163 @@
       </div>
     </section>
 
-    <!-- ======= MODO CADASTRO DETALHADO ======= -->
-    <section id="modoCadastro" class="container" style="display: none;">
-      <div class="cadastro-header">
-        <h2>Cadastro Detalhado de Licenças</h2>
-        <p>Preencha todas as informações das licenças de software</p>
+    <!-- ======= TABELA DE LICENÇAS INDIVIDUAIS ======= -->
+    <section class="container" style="margin-top: 50px;">
+      <div class="tabela-header">
+        <h2 class="page-title">Licenças Individuais</h2>
+        <p class="page-description">Cadastre e gerencie cada licença individualmente. Os totais acima são calculados automaticamente.</p>
       </div>
 
-      <form id="formCadastroDetalhado" class="form-detalhado">
-        <!-- Informações do Software -->
-        <div class="form-section">
-          <h3><i class="fas fa-cube"></i> Informações do Software</h3>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="cadSoftware">Software *</label>
-              <input type="text" id="cadSoftware" class="form-input" placeholder="Nome do software" required>
-            </div>
-            <div class="form-group">
-              <label for="cadVersao">Versão *</label>
-              <input type="text" id="cadVersao" class="form-input" placeholder="Versão do software" required>
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="cadTipo">Tipo de Licença</label>
-              <select id="cadTipo" class="form-input">
-                <option value="Perpétua">Perpétua</option>
-                <option value="Anual">Anual</option>
-                <option value="Mensal">Mensal</option>
-                <option value="Trial">Trial</option>
-                <option value="Subscription">Subscription</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="cadCategoria">Categoria</label>
-              <input type="text" id="cadCategoria" class="form-input" placeholder="Ex: Office, Design, Desenvolvimento">
-            </div>
-          </div>
-        </div>
-
-        <!-- Quantidades e Uso -->
-        <div class="form-section">
-          <h3><i class="fas fa-chart-bar"></i> Quantidades e Uso</h3>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="cadTotalLicencas">Total de Licenças *</label>
-              <input type="number" id="cadTotalLicencas" class="form-input" min="1" placeholder="Número total" required>
-            </div>
-            <div class="form-group">
-              <label for="cadEmUso">Em Uso *</label>
-              <input type="number" id="cadEmUso" class="form-input" min="0" placeholder="Licenças sendo usadas" required>
-            </div>
-            <div class="form-group">
-              <label for="cadSemUso">Sem Uso *</label>
-              <input type="number" id="cadSemUso" class="form-input" min="0" placeholder="Licenças disponíveis" required>
-            </div>
-          </div>
-        </div>
-
-        <!-- Datas e Validade -->
-        <div class="form-section">
-          <h3><i class="fas fa-calendar-alt"></i> Datas e Validade</h3>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="cadDataCompra">Data da Compra</label>
-              <input type="date" id="cadDataCompra" class="form-input">
-            </div>
-            <div class="form-group">
-              <label for="cadDataExpiracao">Data de Expiração *</label>
-              <input type="date" id="cadDataExpiracao" class="form-input" required>
-            </div>
-          </div>
-        </div>
-
-        <!-- Informações Financeiras -->
-        <div class="form-section">
-          <h3><i class="fas fa-money-bill-wave"></i> Informações Financeiras</h3>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="cadValor">Valor Total</label>
-              <input type="number" id="cadValor" class="form-input" step="0.01" placeholder="0.00">
-            </div>
-            <div class="form-group">
-              <label for="cadMoeda">Moeda</label>
-              <select id="cadMoeda" class="form-input">
-                <option value="BRL">BRL (R$)</option>
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="cadPeriodicidadePagamento">Periodicidade de Pagamento</label>
-              <select id="cadPeriodicidadePagamento" class="form-input">
-                <option value="Único">Único</option>
-                <option value="Anual">Anual</option>
-                <option value="Semestral">Semestral</option>
-                <option value="Trimestral">Trimestral</option>
-                <option value="Mensal">Mensal</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- Fornecedor e Suporte -->
-        <div class="form-section">
-          <h3><i class="fas fa-building"></i> Fornecedor e Suporte</h3>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="cadFornecedor">Fornecedor</label>
-              <input type="text" id="cadFornecedor" class="form-input" placeholder="Nome do fornecedor">
-            </div>
-            <div class="form-group">
-              <label for="cadContato">Contato do Suporte</label>
-              <input type="text" id="cadContato" class="form-input" placeholder="Email ou telefone">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="cadEmailContato">Email de Contato</label>
-              <input type="email" id="cadEmailContato" class="form-input" placeholder="email@fornecedor.com">
-            </div>
-            <div class="form-group">
-              <label for="cadTelefoneContato">Telefone de Contato</label>
-              <input type="tel" id="cadTelefoneContato" class="form-input" placeholder="(11) 99999-9999">
-            </div>
-          </div>
-        </div>
-
-        <!-- Informações Adicionais -->
-        <div class="form-section">
-          <h3><i class="fas fa-info-circle"></i> Informações Adicionais</h3>
-          <div class="form-group">
-            <label for="cadObservacoes">Observações</label>
-            <textarea id="cadObservacoes" class="form-input" rows="4" placeholder="Observações importantes sobre a licença..."></textarea>
-          </div>
-          <div class="form-group">
-            <label for="cadDocumentos">Documentos Anexados</label>
-            <input type="file" id="cadDocumentos" class="form-input" multiple accept=".pdf,.doc,.docx,.jpg,.png">
-            <div class="file-input-info">Formatos aceitos: PDF, DOC, DOCX, JPG, PNG (Máx. 10MB por arquivo)</div>
-          </div>
-          <div class="form-group">
-            <label for="cadLinkContrato">Link do Contrato</label>
-            <input type="url" id="cadLinkContrato" class="form-input" placeholder="https://...">
-          </div>
-        </div>
-
-        <!-- Ações do Formulário -->
-        <div class="form-actions">
-          <button type="submit" class="btn btn-success btn-lg">
-            <i class="fas fa-save"></i> Salvar Licença
-          </button>
-          <button type="button" id="btnVoltarVisualizacao" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Voltar para Visualização
-          </button>
-          <button type="reset" class="btn btn-outline">
-            <i class="fas fa-undo"></i> Limpar Formulário
+      <!-- Filtros para Licenças Individuais -->
+      <div class="filter-section">
+        <div class="search-box">
+          <input type="text" id="searchInputIndividuais" placeholder="Pesquisar software, usuário, hostname..." class="search-input">
+          <button type="button" class="search-btn">
+            <i class="fas fa-search"></i>
           </button>
         </div>
-      </form>
+        
+        <div class="filter-box">
+          <select id="softwareFilter">
+            <option value="Todos">Filtrar por Software</option>
+            <!-- Opções serão preenchidas via JavaScript -->
+          </select>
+        </div>
+
+        <div class="filter-box">
+          <select id="statusFilterIndividuais">
+            <option value="Todos">Status da Licença</option>
+            <option value="Ativa">Ativa</option>
+            <option value="Inativa">Inativa</option>
+            <option value="Expirada">Expirada</option>
+            <option value="semUso">Licença Sem Uso</option>
+          </select>
+        </div>
+
+        <!-- Botões de Ação -->
+        <div class="action-buttons">
+          <button type="button" id="adicionarLicencaIndividual" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nova Licença Individual
+          </button>
+          <button type="button" id="gerarRelatorioIndividuais" class="btn btn-success">
+            <i class="fas fa-print"></i> Relatório
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabela de Licenças Individuais -->
+      <div class="table-container">
+        <table id="tabelaLicencasIndividuais" class="licenses-table">
+          <thead>
+            <tr>
+              <th>SOFTWARE</th>
+              <th>CHAVE DE ATIVAÇÃO</th>
+              <th>USUÁRIO</th>
+              <th>HOSTNAME</th>
+              <th>PATRIMÔNIO</th>
+              <th>STATUS</th>
+              <th>AÇÕES</th>
+            </tr>
+          </thead>
+          <tbody id="tableBodyIndividuais">
+            <!-- Dados serão carregados via JavaScript -->
+          </tbody>
+        </table>
+      </div>
     </section>
 
-    <!-- Modal de Visualização/Edição (Existente) -->
-    <div id="modal" class="modal">
+    <!-- Modal para Licença Individual -->
+    <div id="modalLicencaIndividual" class="modal">
       <div class="modal-content">
         <div class="modal-header">
-          <h2 id="modalTitle">Visualizar Licença</h2>
+          <h2 id="modalTitleIndividual">Nova Licença Individual</h2>
           <button type="button" class="close-modal">
             <i class="fas fa-times"></i>
           </button>
         </div>
         
         <div class="modal-body">
-          <form id="formLicenca">
+          <form id="formLicencaIndividual">
             <div class="form-row">
               <div class="form-group">
-                <label for="modalSoftware">Software *</label>
-                <input type="text" id="modalSoftware" class="form-input" placeholder="Nome do software" required>
+                <label for="modalSoftwareIndividual">Software *</label>
+                <div style="display: flex; gap: 10px;">
+                  <select id="modalSoftwareIndividual" class="form-input" style="flex: 1;" required>
+                    <option value="">Selecione o software</option>
+                    <!-- Opções serão preenchidas via JavaScript -->
+                  </select>
+                  <button type="button" id="btnNovoSoftware" class="btn btn-outline" style="white-space: nowrap;">
+                    <i class="fas fa-plus"></i> Novo
+                  </button>
+                </div>
               </div>
               
               <div class="form-group">
-                <label for="modalVersao">Versão *</label>
-                <input type="text" id="modalVersao" class="form-input" placeholder="Versão do software" required>
+                <label for="modalChaveAtivacao">Chave de Ativação *</label>
+                <input type="text" id="modalChaveAtivacao" class="form-input" placeholder="Digite a chave de ativação" required>
               </div>
             </div>
             
             <div class="form-row">
               <div class="form-group">
-                <label for="modalLicencas">Quantidade Total *</label>
-                <input type="number" id="modalLicencas" class="form-input" placeholder="Número total de licenças" min="1" required>
+                <label for="modalUsuario">Usuário *</label>
+                <input type="text" id="modalUsuario" class="form-input" placeholder="Nome do usuário" required>
               </div>
               
               <div class="form-group">
-                <label for="modalEmUso">Licenças em Uso *</label>
-                <input type="number" id="modalEmUso" class="form-input" placeholder="Licenças sendo usadas" min="0" required>
+                <label for="modalHostname">Hostname *</label>
+                <input type="text" id="modalHostname" class="form-input" placeholder="Nome do computador" required>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label for="modalSemUso">Licenças sem Uso *</label>
-                <input type="number" id="modalSemUso" class="form-input" placeholder="Licenças disponíveis" min="0" required>
+                <label for="modalPatrimonio">Patrimônio</label>
+                <input type="text" id="modalPatrimonio" class="form-input" placeholder="Número do patrimônio">
               </div>
               
               <div class="form-group">
-                <label for="modalData">Data de Expiração *</label>
-                <input type="text" id="modalData" class="form-input" placeholder="DD/MM/AAAA" required>
+                <label for="modalStatus">Status</label>
+                <select id="modalStatus" class="form-input">
+                  <option value="Ativa">Ativa</option>
+                  <option value="Inativa">Inativa</option>
+                  <option value="Expirada">Expirada</option>
+                </select>
               </div>
             </div>
 
             <!-- Seção de Informações Adicionais -->
-            <div class="equipment-section">
+            <div class="equipment-section" id="infoAdicionais">
               <h4>Informações Adicionais</h4>
               
               <div class="form-row">
                 <div class="form-group">
-                  <label for="modalFornecedor">Fornecedor</label>
-                  <input type="text" id="modalFornecedor" class="form-input" placeholder="Nome do fornecedor">
+                  <label for="modalNumeroPedido">Número do Pedido</label>
+                  <input type="text" id="modalNumeroPedido" class="form-input" placeholder="Número do pedido">
                 </div>
                 
                 <div class="form-group">
-                  <label for="modalValor">Valor da Licença</label>
-                  <input type="text" id="modalValor" class="form-input" placeholder="R$ 0,00">
+                  <label for="modalChamado">Número do Chamado</label>
+                  <input type="text" id="modalChamado" class="form-input" placeholder="Número do chamado">
                 </div>
               </div>
               
               <div class="form-row">
                 <div class="form-group">
-                  <label for="modalContato">Contato do Fornecedor</label>
-                  <input type="text" id="modalContato" class="form-input" placeholder="Telefone ou email">
+                  <label for="modalDataPedido">Data do Pedido</label>
+                  <input type="date" id="modalDataPedido" class="form-input">
                 </div>
                 
                 <div class="form-group">
-                  <label for="modalObservacoes">Observações</label>
-                  <input type="text" id="modalObservacoes" class="form-input" placeholder="Observações adicionais">
+                  <label for="modalPreco">Preço (R$)</label>
+                  <input type="number" id="modalPreco" class="form-input" step="0.01" placeholder="0.00">
                 </div>
               </div>
             </div>
             
             <div class="modal-actions">
-              <button type="button" id="salvarBtn" class="btn btn-primary">Salvar</button>
-              <button type="button" id="cancelarBtn" class="btn btn-secondary">Cancelar</button>
+              <button type="button" id="salvarBtnIndividual" class="btn btn-primary">Salvar</button>
+              <button type="button" id="cancelarBtnIndividual" class="btn btn-secondary">Cancelar</button>
             </div>
           </form>
         </div>
@@ -469,7 +295,7 @@
     </div>
 
     <!-- Área do Relatório para Impressão -->
-    <div id="areaRelatorio" class="relatorio-container">
+    <div id="areaRelatorio" class="relatorio-container" style="display: none;">
       <div class="cabecalho-relatorio">
         <h1 class="titulo-relatorio">Relatório de Licenças de Software</h1>
         <p class="data-relatorio" id="dataRelatorio">Data: </p>
@@ -496,7 +322,7 @@
         <p>Relatório gerado em <span id="dataGeracao"></span></p>
         <p class="assinatura">___________________________________</p>
         <p>Responsável</p>
-      </div>
+      </div>  
     </div>
 
     <!-- Notificação de Sucesso -->
