@@ -26,27 +26,7 @@ const estadoIndividual = {
 // Elementos DOM
 const elementos = {
     // Modo Visualização
-    tabela: document.getElementById("tableBody"),
-    searchInput: document.getElementById("searchInput"),
-    statusFilter: document.getElementById("statusFilter"),
-    
-    // Botão de Relatório
-    btnGerarRelatorio: document.getElementById("gerarRelatorio"),
-    
-    // Relatório
-    modalRelatorio: document.getElementById("modalRelatorio"),
-    filtroRelatorio: document.getElementById("filtroRelatorio"),
-    grupoFiltroEspecifico: document.getElementById("grupoFiltroEspecifico"),
-    labelFiltroEspecifico: document.getElementById("labelFiltroEspecifico"),
-    filtroEspecifico: document.getElementById("filtroEspecifico"),
-    ordenacaoRelatorio: document.getElementById("ordenacaoRelatorio"),
-    btnVisualizarRelatorio: document.getElementById("visualizarRelatorio"),
-    btnImprimirRelatorio: document.getElementById("imprimirRelatorio"),
-    btnCancelarRelatorio: document.getElementById("cancelarRelatorio"),
-    areaRelatorio: document.getElementById("areaRelatorio"),
-    dataRelatorio: document.getElementById("dataRelatorio"),
-    corpoRelatorio: document.getElementById("corpoRelatorio"),
-    dataGeracao: document.getElementById("dataGeracao")
+    tabela: document.getElementById("tableBody")
 };
 
 // Elementos DOM para Licenças Individuais
@@ -372,12 +352,6 @@ function sincronizarTabelaGeral() {
                 licencas: total,
                 emUso: emUso,
                 semUso: semUso,
-                data: primeiraOcorrencia?.dataExpiracao ? formatarDataParaBR(primeiraOcorrencia.dataExpiracao) : 'N/A',
-                dataExpiracao: primeiraOcorrencia?.dataExpiracao || '',
-                status: calcularStatus(primeiraOcorrencia?.dataExpiracao),
-                tipo: primeiraOcorrencia?.tipo || 'N/A',
-                categoria: primeiraOcorrencia?.categoria || 'N/A',
-                fornecedor: primeiraOcorrencia?.fornecedor || 'N/A',
                 dataCadastro: new Date().toISOString(),
                 sincronizadoAutomaticamente: true
             });
@@ -393,43 +367,9 @@ function sincronizarTabelaGeral() {
 
 // ======= CONFIGURAÇÃO DE EVENTOS =======
 function configurarEventListeners() {
-    // Pesquisa em tempo real
-    if (elementos.searchInput) {
-        elementos.searchInput.addEventListener("input", filtrarLicencas);
-    }
-    
-    // Filtro por status
-    if (elementos.statusFilter) {
-        elementos.statusFilter.addEventListener("change", filtrarLicencas);
-    }
-    
-    // Botão de Relatório
-    if (elementos.btnGerarRelatorio) {
-        elementos.btnGerarRelatorio.addEventListener("click", abrirModalRelatorio);
-    }
-    
-    // Relatório
-    if (elementos.filtroRelatorio) elementos.filtroRelatorio.addEventListener("change", configurarFiltroRelatorio);
-    if (elementos.btnVisualizarRelatorio) elementos.btnVisualizarRelatorio.addEventListener("click", gerarRelatorio);
-    if (elementos.btnImprimirRelatorio) elementos.btnImprimirRelatorio.addEventListener("click", imprimirRelatorio);
-    if (elementos.btnCancelarRelatorio) elementos.btnCancelarRelatorio.addEventListener("click", fecharModalRelatorio);
-    
-    // Fechar modal
-    if (elementos.modalRelatorio) {
-        elementos.modalRelatorio.addEventListener("click", function(e) {
-            if (e.target === elementos.modalRelatorio) fecharModalRelatorio();
-        });
-        
-        const closeBtn = elementos.modalRelatorio.querySelector('.close-modal');
-        if (closeBtn) closeBtn.addEventListener('click', fecharModalRelatorio);
-    }
-    
     // Tecla ESC
     document.addEventListener("keydown", function(e) {
         if (e.key === "Escape") {
-            if (elementos.modalRelatorio && elementos.modalRelatorio.style.display === "flex") {
-                fecharModalRelatorio();
-            }
             if (elementosIndividuais.modal && elementosIndividuais.modal.style.display === "flex") {
                 fecharModalIndividual();
             }
@@ -483,31 +423,52 @@ function configurarEventListenersIndividuais() {
     
     // Novo botão de software
     configurarBotaoNovoSoftware();
+    
+    // Configurar relatório individuais
+    configurarRelatorioIndividuais();
 }
 
 function configurarBotaoNovoSoftware() {
     if (elementosIndividuais.btnNovoSoftware && elementosIndividuais.software) {
         elementosIndividuais.btnNovoSoftware.addEventListener('click', function() {
-            const nomeSoftware = prompt('Digite o nome do novo software:');
+            const nomeSoftware = prompt('📝 Adicionar Novo Software\n\nDigite o nome do novo software:');
+            
             if (nomeSoftware && nomeSoftware.trim()) {
+                const softwareNome = nomeSoftware.trim();
+                
                 // Verificar se já existe
                 const existe = Array.from(elementosIndividuais.software.options).some(option => 
-                    option.value === nomeSoftware.trim()
+                    option.value.toLowerCase() === softwareNome.toLowerCase()
                 );
                 
                 if (!existe) {
                     // Adicionar ao select
                     const option = document.createElement('option');
-                    option.value = nomeSoftware.trim();
-                    option.textContent = nomeSoftware.trim();
+                    option.value = softwareNome;
+                    option.textContent = softwareNome;
                     elementosIndividuais.software.appendChild(option);
                     
                     // Selecionar o novo software
-                    elementosIndividuais.software.value = nomeSoftware.trim();
+                    elementosIndividuais.software.value = softwareNome;
                     
-                    mostrarNotificacao('Novo software adicionado!');
+                    // Atualizar também o filtro de softwares se existir
+                    if (elementosIndividuais.softwareFilter) {
+                        const optionFiltro = document.createElement('option');
+                        optionFiltro.value = softwareNome;
+                        optionFiltro.textContent = softwareNome;
+                        elementosIndividuais.softwareFilter.appendChild(optionFiltro);
+                    }
+                    
+                    mostrarNotificacao(`✅ Software "${softwareNome}" adicionado com sucesso!`);
+                    
+                    // Focar no próximo campo
+                    setTimeout(() => {
+                        if (elementosIndividuais.chaveAtivacao) {
+                            elementosIndividuais.chaveAtivacao.focus();
+                        }
+                    }, 100);
                 } else {
-                    mostrarNotificacao('Este software já existe!', 'erro');
+                    mostrarNotificacao('⚠️ Este software já existe na lista!', 'erro');
                 }
             }
         });
@@ -639,9 +600,14 @@ function editarLicencaIndividual(index) {
         }
     });
     
-    // Software não pode ser editado
+    // Software não pode ser editado - MAS MANTÉM O VALOR VISÍVEL
     if (elementosIndividuais.software) {
         elementosIndividuais.software.disabled = true;
+        // Garantir que o valor permaneça visível
+        elementosIndividuais.software.style.opacity = '1';
+        elementosIndividuais.software.style.color = 'var(--text-dark)';
+        elementosIndividuais.software.style.backgroundColor = '#f8f9fa';
+        elementosIndividuais.software.style.cursor = 'not-allowed';
     }
     
     // Configurar UI
@@ -655,8 +621,13 @@ function editarLicencaIndividual(index) {
         elementosIndividuais.modal.style.display = 'flex';
     }
     
-    // Atualizar lista de softwares
+    // Atualizar lista de softwares (para garantir que o software atual esteja na lista)
     atualizarSelectSoftwares();
+    
+    // Forçar a seleção do software atual
+    if (elementosIndividuais.software) {
+        elementosIndividuais.software.value = licenca.software || '';
+    }
 }
 
 function fecharModalIndividual() {
@@ -764,7 +735,7 @@ async function excluirLicencaIndividual(index) {
 }
 
 // ======= RENDERIZAÇÃO DAS TABELAS =======
-function renderizarTabela(dados = estado.dadosFiltrados) {
+function renderizarTabela(dados = licencas) {
     if (!elementos.tabela) return;
     
     elementos.tabela.innerHTML = "";
@@ -772,7 +743,7 @@ function renderizarTabela(dados = estado.dadosFiltrados) {
     if (dados.length === 0) {
         elementos.tabela.innerHTML = `
             <tr>
-                <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
+                <td colspan="4" style="text-align: center; padding: 40px; color: #666;">
                     <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
                     <h3 style="margin: 0 0 10px 0; font-weight: 500;">Nenhuma licença cadastrada</h3>
                     <p style="margin: 0; opacity: 0.7;">Adicione licenças individuais para ver os totais aqui</p>
@@ -788,16 +759,16 @@ function renderizarTabela(dados = estado.dadosFiltrados) {
         
         // Calcular percentual de uso
         const percentualUso = licenca.licencas > 0 ? (licenca.emUso / licenca.licencas) * 100 : 0;
-        
-        // Determinar classe do status
-        let statusClass = 'status-ativo';
-        if (licenca.status === 'Expirada') statusClass = 'status-inativo';
-        if (licenca.status === 'Em Renovação') statusClass = 'status-manutencao';
+        const percentualSemUso = licenca.licencas > 0 ? (licenca.semUso / licenca.licencas) * 100 : 0;
         
         tr.innerHTML = `
-            <td>${licenca.software}</td>
-            <td>${licenca.versao}</td>
-            <td>${licenca.licencas}</td>
+            <td>
+                <div class="software-info">
+                    <strong class="software-name">${licenca.software}</strong>
+                    ${licenca.versao && licenca.versao !== 'N/A' ? `<span class="software-version">${licenca.versao}</span>` : ''}
+                </div>
+            </td>
+            <td class="total-licencas">${licenca.licencas}</td>
             <td>
                 <div class="uso-badge uso-ativo">
                     <span class="uso-number">${licenca.emUso}</span>
@@ -807,11 +778,9 @@ function renderizarTabela(dados = estado.dadosFiltrados) {
             <td>
                 <div class="uso-badge uso-inativo">
                     <span class="uso-number">${licenca.semUso}</span>
-                    <span class="uso-percent">${Math.round(100 - percentualUso)}%</span>
+                    <span class="uso-percent">${Math.round(percentualSemUso)}%</span>
                 </div>
             </td>
-            <td>${licenca.data}</td>
-            <td><span class="status-badge ${statusClass}">${licenca.status}</span></td>
         `;
         elementos.tabela.appendChild(tr);
     });
@@ -943,22 +912,6 @@ function configurarEventosBotoesIndividuais() {
 }
 
 // ======= FILTROS E UTILITÁRIOS =======
-function filtrarLicencas() {
-    const termo = elementos.searchInput.value.toLowerCase();
-    const status = elementos.statusFilter.value;
-    
-    estado.dadosFiltrados = licencas.filter(licenca => {
-        const matchesSearch = licenca.software.toLowerCase().includes(termo) ||
-                             licenca.versao.toLowerCase().includes(termo);
-        
-        const matchesStatus = status === 'Todos' || licenca.status === status;
-        
-        return matchesSearch && matchesStatus;
-    });
-    
-    renderizarTabela();
-}
-
 function filtrarLicencasIndividuais() {
     const termo = elementosIndividuais.searchInput?.value.toLowerCase() || '';
     const software = elementosIndividuais.softwareFilter?.value || 'Todos';
@@ -994,7 +947,7 @@ function atualizarFiltroSoftwares() {
     if (!elementosIndividuais.softwareFilter) return;
     
     // Limpar opções
-    elementosIndividuais.softwareFilter.innerHTML = '<option value="Todos">Filtrar por Software</option>';
+    elementosIndividuais.softwareFilter.innerHTML = '<option value="Todos">Todos os Softwares</option>';
     
     // Pegar softwares únicos
     const softwares = [...new Set(licencasIndividuais.map(lic => lic.software).filter(Boolean))];
@@ -1038,19 +991,6 @@ function formatarDataParaBR(dataISO) {
     return `${dia}/${mes}/${ano}`;
 }
 
-function calcularStatus(dataExpiracao) {
-    if (!dataExpiracao) return 'Ativa';
-    
-    const hoje = new Date();
-    const expiracao = new Date(dataExpiracao);
-    const diffTime = expiracao - hoje;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 0) return 'Expirada';
-    if (diffDays <= 30) return 'Em Renovação';
-    return 'Ativa';
-}
-
 function mostrarNotificacao(mensagem, tipo = 'sucesso') {
     const alerta = document.getElementById("alertaSucesso");
     if (!alerta) return;
@@ -1075,83 +1015,161 @@ function mostrarNotificacao(mensagem, tipo = 'sucesso') {
     }, 3000);
 }
 
-// ======= RELATÓRIOS =======
-function abrirModalRelatorio() {
-    if (elementos.modalRelatorio) {
-        elementos.modalRelatorio.style.display = 'flex';
-        configurarFiltroRelatorio();
-    }
-}
-
-function fecharModalRelatorio() {
-    if (elementos.modalRelatorio) elementos.modalRelatorio.style.display = 'none';
-}
-
-function configurarFiltroRelatorio() {
-    if (!elementos.filtroRelatorio) return;
+// ======= RELATÓRIOS PARA LICENÇAS INDIVIDUAIS =======
+function configurarRelatorioIndividuais() {
+    const btnRelatorio = document.getElementById('gerarRelatorioIndividuais');
+    const modalRelatorio = document.getElementById('modalRelatorioIndividuais');
+    const btnVisualizar = document.getElementById('visualizarRelatorioIndividuais');
+    const btnImprimir = document.getElementById('imprimirRelatorioIndividuais');
+    const btnCancelar = document.getElementById('cancelarRelatorioIndividuais');
+    const filtroRelatorio = document.getElementById('filtroRelatorioIndividuais');
     
-    const filtro = elementos.filtroRelatorio.value;
-    if (elementos.grupoFiltroEspecifico) {
-        elementos.grupoFiltroEspecifico.style.display = filtro === 'todos' ? 'none' : 'block';
+    if (btnRelatorio) {
+        btnRelatorio.addEventListener('click', abrirModalRelatorioIndividuais);
     }
     
-    if (elementos.filtroEspecifico) {
-        elementos.filtroEspecifico.innerHTML = '';
+    if (filtroRelatorio) {
+        filtroRelatorio.addEventListener('change', configurarFiltroRelatorioIndividuais);
+    }
+    
+    if (btnVisualizar) {
+        btnVisualizar.addEventListener('click', gerarRelatorioIndividuais);
+    }
+    
+    if (btnImprimir) {
+        btnImprimir.addEventListener('click', imprimirRelatorioIndividuais);
+    }
+    
+    if (btnCancelar) {
+        btnCancelar.addEventListener('click', fecharModalRelatorioIndividuais);
+    }
+    
+    // Fechar modal ao clicar fora
+    if (modalRelatorio) {
+        modalRelatorio.addEventListener('click', function(e) {
+            if (e.target === modalRelatorio) {
+                fecharModalRelatorioIndividuais();
+            }
+        });
         
-        if (filtro === 'software') {
-            const softwares = [...new Set(licencas.map(lic => lic.software))];
-            softwares.sort();
-            softwares.forEach(software => {
-                const option = document.createElement('option');
-                option.value = software;
-                option.textContent = software;
-                elementos.filtroEspecifico.appendChild(option);
-            });
-        } else if (filtro === 'status') {
-            const status = ['Ativa', 'Expirada', 'Em Renovação'];
-            status.forEach(s => {
-                const option = document.createElement('option');
-                option.value = s;
-                option.textContent = s;
-                elementos.filtroEspecifico.appendChild(option);
-            });
+        const closeBtn = modalRelatorio.querySelector('.close-modal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', fecharModalRelatorioIndividuais);
         }
     }
 }
 
-function gerarRelatorio() {
-    const filtro = elementos.filtroRelatorio?.value || 'todos';
-    const filtroEspecifico = elementos.filtroEspecifico?.value || '';
-    const ordenacao = elementos.ordenacaoRelatorio?.value || 'software';
+function abrirModalRelatorioIndividuais() {
+    const modal = document.getElementById('modalRelatorioIndividuais');
+    if (modal) {
+        modal.style.display = 'flex';
+        configurarFiltroRelatorioIndividuais();
+    }
+}
+
+function fecharModalRelatorioIndividuais() {
+    const modal = document.getElementById('modalRelatorioIndividuais');
+    if (modal) modal.style.display = 'none';
+}
+
+function configurarFiltroRelatorioIndividuais() {
+    const filtro = document.getElementById('filtroRelatorioIndividuais');
+    const grupoFiltro = document.getElementById('grupoFiltroEspecificoIndividuais');
+    const labelFiltro = document.getElementById('labelFiltroEspecificoIndividuais');
+    const filtroEspecifico = document.getElementById('filtroEspecificoIndividuais');
     
-    let dadosRelatorio = [...licencas];
+    if (!filtro || !grupoFiltro || !labelFiltro || !filtroEspecifico) return;
     
+    const tipoFiltro = filtro.value;
+    
+    // Mostrar/ocultar grupo de filtro específico
+    grupoFiltro.style.display = tipoFiltro === 'todos' ? 'none' : 'block';
+    
+    // Configurar label
+    switch(tipoFiltro) {
+        case 'software':
+            labelFiltro.textContent = 'Software:';
+            break;
+        case 'status':
+            labelFiltro.textContent = 'Status:';
+            break;
+        case 'usuario':
+            labelFiltro.textContent = 'Usuário:';
+            break;
+        default:
+            labelFiltro.textContent = 'Filtro específico:';
+    }
+    
+    // Limpar e preencher opções
+    filtroEspecifico.innerHTML = '';
+    
+    if (tipoFiltro === 'software') {
+        const softwares = [...new Set(licencasIndividuais.map(lic => lic.software).filter(Boolean))];
+        softwares.sort();
+        softwares.forEach(software => {
+            const option = document.createElement('option');
+            option.value = software;
+            option.textContent = software;
+            filtroEspecifico.appendChild(option);
+        });
+    } else if (tipoFiltro === 'status') {
+        const status = ['Ativa', 'Inativa', 'Expirada'];
+        status.forEach(s => {
+            const option = document.createElement('option');
+            option.value = s;
+            option.textContent = s;
+            filtroEspecifico.appendChild(option);
+        });
+    } else if (tipoFiltro === 'usuario') {
+        const usuarios = [...new Set(licencasIndividuais.map(lic => lic.usuario).filter(Boolean))];
+        usuarios.sort();
+        usuarios.forEach(usuario => {
+            const option = document.createElement('option');
+            option.value = usuario;
+            option.textContent = usuario;
+            filtroEspecifico.appendChild(option);
+        });
+    }
+}
+
+function gerarRelatorioIndividuais() {
+    const filtro = document.getElementById('filtroRelatorioIndividuais')?.value || 'todos';
+    const filtroEspecifico = document.getElementById('filtroEspecificoIndividuais')?.value || '';
+    const ordenacao = document.getElementById('ordenacaoRelatorioIndividuais')?.value || 'software';
+    
+    let dadosRelatorio = [...licencasIndividuais];
+    
+    // Aplicar filtros
     if (filtro !== 'todos' && filtroEspecifico) {
         dadosRelatorio = dadosRelatorio.filter(licenca => licenca[filtro] === filtroEspecifico);
     }
     
+    // Aplicar ordenação
     dadosRelatorio.sort((a, b) => {
-        if (ordenacao === 'quantidade') {
-            return b.licencas - a.licencas;
-        } else if (ordenacao === 'data') {
-            return new Date(a.dataExpiracao) - new Date(b.dataExpiracao);
+        if (ordenacao === 'dataCadastro') {
+            return new Date(b.dataCadastro) - new Date(a.dataCadastro);
         }
         return a[ordenacao].localeCompare(b[ordenacao]);
     });
     
     // Atualizar UI do relatório
     const agora = new Date();
-    if (elementos.dataRelatorio) elementos.dataRelatorio.textContent = `Data: ${agora.toLocaleDateString('pt-BR')}`;
-    if (elementos.dataGeracao) elementos.dataGeracao.textContent = agora.toLocaleDateString('pt-BR');
+    const dataRelatorio = document.getElementById('dataRelatorioIndividuais');
+    const dataGeracao = document.getElementById('dataGeracaoIndividuais');
+    const corpoRelatorio = document.getElementById('corpoRelatorioIndividuais');
+    const resumoRelatorio = document.getElementById('resumoRelatorioIndividuais');
     
-    if (elementos.corpoRelatorio) {
-        elementos.corpoRelatorio.innerHTML = '';
+    if (dataRelatorio) dataRelatorio.textContent = `Data: ${agora.toLocaleDateString('pt-BR')}`;
+    if (dataGeracao) dataGeracao.textContent = agora.toLocaleDateString('pt-BR');
+    
+    if (corpoRelatorio) {
+        corpoRelatorio.innerHTML = '';
         
         if (dadosRelatorio.length === 0) {
-            elementos.corpoRelatorio.innerHTML = `
+            corpoRelatorio.innerHTML = `
                 <tr>
-                    <td colspan="7" style="text-align: center; padding: 20px; color: #666;">
-                        Nenhuma licença encontrada para o filtro selecionado
+                    <td colspan="8" style="text-align: center; padding: 20px; color: #666;">
+                        Nenhuma licença individual encontrada para o filtro selecionado
                     </td>
                 </tr>
             `;
@@ -1159,23 +1177,57 @@ function gerarRelatorio() {
             dadosRelatorio.forEach(licenca => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${licenca.software}</td>
-                    <td>${licenca.versao}</td>
-                    <td>${licenca.licencas}</td>
-                    <td>${licenca.emUso}</td>
-                    <td>${licenca.semUso}</td>
-                    <td>${licenca.data}</td>
-                    <td>${licenca.status}</td>
+                    <td>${licenca.software || 'N/A'}</td>
+                    <td style="font-family: 'Courier New', monospace; font-size: 11px;">${licenca.chaveAtivacao || 'N/A'}</td>
+                    <td>${licenca.usuario || 'N/A'}</td>
+                    <td>${licenca.hostname || 'N/A'}</td>
+                    <td>${licenca.patrimonio || 'N/A'}</td>
+                    <td>${licenca.status || 'N/A'}</td>
+                    <td>${licenca.numeroPedido || 'N/A'}</td>
+                    <td>${licenca.dataCadastro ? formatarDataParaBR(licenca.dataCadastro) : 'N/A'}</td>
                 `;
-                elementos.corpoRelatorio.appendChild(tr);
+                corpoRelatorio.appendChild(tr);
             });
         }
     }
     
-    if (elementos.areaRelatorio) elementos.areaRelatorio.style.display = 'block';
-    if (elementos.modalRelatorio) elementos.modalRelatorio.style.display = 'none';
+    // Atualizar resumo
+    if (resumoRelatorio) {
+        const total = dadosRelatorio.length;
+        const ativas = dadosRelatorio.filter(l => l.status === 'Ativa').length;
+        const inativas = dadosRelatorio.filter(l => l.status === 'Inativa').length;
+        const expiradas = dadosRelatorio.filter(l => l.status === 'Expirada').length;
+        
+        resumoRelatorio.innerHTML = `
+            <div class="resumo-stats">
+                <div class="stat-item">
+                    <span class="stat-number">${total}</span>
+                    <span class="stat-label">Total de Licenças</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" style="color: #28a745;">${ativas}</span>
+                    <span class="stat-label">Ativas</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" style="color: #ffc107;">${inativas}</span>
+                    <span class="stat-label">Inativas</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" style="color: #dc3545;">${expiradas}</span>
+                    <span class="stat-label">Expiradas</span>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Mostrar relatório
+    const areaRelatorio = document.getElementById('areaRelatorioIndividuais');
+    const modal = document.getElementById('modalRelatorioIndividuais');
+    
+    if (areaRelatorio) areaRelatorio.style.display = 'block';
+    if (modal) modal.style.display = 'none';
 }
 
-function imprimirRelatorio() {
+function imprimirRelatorioIndividuais() {
     window.print();
 }

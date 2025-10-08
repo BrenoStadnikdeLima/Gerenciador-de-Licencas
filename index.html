@@ -34,44 +34,15 @@
       <h1 class="page-title">Controle de Licenças</h1>
       <p class="page-description">Visualize os totais de licenças de software calculados automaticamente a partir das licenças individuais.</p>
 
-      <!-- Área de Pesquisa e Filtros -->
-      <div class="filter-section">
-        <div class="search-box">
-          <input type="text" id="searchInput" placeholder="Pesquisar software, versão..." class="search-input">
-          <button type="button" class="search-btn">
-            <i class="fas fa-search"></i>
-          </button>
-        </div>
-        
-        <div class="filter-box">
-          <select id="statusFilter">
-            <option value="Todos">Status das Licenças</option>
-            <option value="Ativa">Ativa</option>
-            <option value="Expirada">Expirada</option>
-            <option value="Em Renovação">Em Renovação</option>
-          </select>
-        </div>
-
-        <!-- BOTÕES DE AÇÃO (APENAS RELATÓRIO) -->
-        <div class="action-buttons">
-          <button type="button" id="gerarRelatorio" class="btn btn-info">
-            <i class="fas fa-print"></i> Relatório
-          </button>
-        </div>
-      </div>
-
       <!-- Tabela de Licenças (SOMENTE LEITURA) -->
       <div class="table-container">
         <table id="tabelaLicencas" class="licenses-table">
           <thead>
             <tr>
-              <th>SOFTWARE</th>
-              <th>VERSÃO</th>
-              <th>QUANTIDADE TOTAL</th>
-              <th>EM USO</th>
-              <th>SEM USO</th>
-              <th>DATA DE EXPIRAÇÃO</th>
-              <th>STATUS</th>
+              <th width="40%">SOFTWARE</th>
+              <th width="20%">QUANTIDADE TOTAL</th>
+              <th width="20%">EM USO</th>
+              <th width="20%">SEM USO</th>
             </tr>
           </thead>
           <tbody id="tableBody">
@@ -99,14 +70,14 @@
         
         <div class="filter-box">
           <select id="softwareFilter">
-            <option value="Todos">Filtrar por Software</option>
+            <option value="Todos">Todos os Softwares</option>
             <!-- Opções serão preenchidas via JavaScript -->
           </select>
         </div>
 
         <div class="filter-box">
           <select id="statusFilterIndividuais">
-            <option value="Todos">Status da Licença</option>
+            <option value="Todos">Todos os Status</option>
             <option value="Ativa">Ativa</option>
             <option value="Inativa">Inativa</option>
             <option value="Expirada">Expirada</option>
@@ -117,7 +88,7 @@
         <!-- Botões de Ação -->
         <div class="action-buttons">
           <button type="button" id="adicionarLicencaIndividual" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Nova Licença Individual
+            <i class="fas fa-plus"></i> Nova Licença
           </button>
           <button type="button" id="gerarRelatorioIndividuais" class="btn btn-success">
             <i class="fas fa-print"></i> Relatório
@@ -130,13 +101,13 @@
         <table id="tabelaLicencasIndividuais" class="licenses-table">
           <thead>
             <tr>
-              <th>SOFTWARE</th>
-              <th>CHAVE DE ATIVAÇÃO</th>
-              <th>USUÁRIO</th>
-              <th>HOSTNAME</th>
-              <th>PATRIMÔNIO</th>
-              <th>STATUS</th>
-              <th>AÇÕES</th>
+              <th width="18%">SOFTWARE</th>
+              <th width="22%">CHAVE DE ATIVAÇÃO</th>
+              <th width="15%">USUÁRIO</th>
+              <th width="15%">HOSTNAME</th>
+              <th width="10%">PATRIMÔNIO</th>
+              <th width="10%">STATUS</th>
+              <th width="10%">AÇÕES</th>
             </tr>
           </thead>
           <tbody id="tableBodyIndividuais">
@@ -156,18 +127,19 @@
           </button>
         </div>
         
-        <div class="modal-body">
+        <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
           <form id="formLicencaIndividual">
+            <!-- Linha 1: Software e Chave de Ativação -->
             <div class="form-row">
               <div class="form-group">
                 <label for="modalSoftwareIndividual">Software *</label>
-                <div style="display: flex; gap: 10px;">
-                  <select id="modalSoftwareIndividual" class="form-input" style="flex: 1;" required>
+                <div class="software-select-container">
+                  <select id="modalSoftwareIndividual" class="form-input software-select" required>
                     <option value="">Selecione o software</option>
                     <!-- Opções serão preenchidas via JavaScript -->
                   </select>
-                  <button type="button" id="btnNovoSoftware" class="btn btn-outline" style="white-space: nowrap;">
-                    <i class="fas fa-plus"></i> Novo
+                  <button type="button" id="btnNovoSoftware" class="btn-novo-software" title="Adicionar novo software">
+                    <i class="fas fa-plus-circle"></i>
                   </button>
                 </div>
               </div>
@@ -178,6 +150,7 @@
               </div>
             </div>
             
+            <!-- Linha 2: Usuário e Hostname -->
             <div class="form-row">
               <div class="form-group">
                 <label for="modalUsuario">Usuário *</label>
@@ -190,6 +163,7 @@
               </div>
             </div>
 
+            <!-- Linha 3: Patrimônio e Status -->
             <div class="form-row">
               <div class="form-group">
                 <label for="modalPatrimonio">Patrimônio</label>
@@ -207,48 +181,55 @@
             </div>
 
             <!-- Seção de Informações Adicionais -->
-            <div class="equipment-section" id="infoAdicionais">
-              <h4>Informações Adicionais</h4>
-              
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="modalNumeroPedido">Número do Pedido</label>
-                  <input type="text" id="modalNumeroPedido" class="form-input" placeholder="Número do pedido">
-                </div>
-                
-                <div class="form-group">
-                  <label for="modalChamado">Número do Chamado</label>
-                  <input type="text" id="modalChamado" class="form-input" placeholder="Número do chamado">
-                </div>
+            <div class="section-divider">
+              <span>Informações Adicionais</span>
+            </div>
+            
+            <!-- Linha 4: Número do Pedido e Chamado -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="modalNumeroPedido">Número do Pedido</label>
+                <input type="text" id="modalNumeroPedido" class="form-input" placeholder="Número do pedido">
               </div>
               
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="modalDataPedido">Data do Pedido</label>
-                  <input type="date" id="modalDataPedido" class="form-input">
-                </div>
-                
-                <div class="form-group">
-                  <label for="modalPreco">Preço (R$)</label>
-                  <input type="number" id="modalPreco" class="form-input" step="0.01" placeholder="0.00">
-                </div>
+              <div class="form-group">
+                <label for="modalChamado">Número do Chamado</label>
+                <input type="text" id="modalChamado" class="form-input" placeholder="Número do chamado">
               </div>
             </div>
             
+            <!-- Linha 5: Data do Pedido e Preço -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="modalDataPedido">Data do Pedido</label>
+                <input type="date" id="modalDataPedido" class="form-input">
+              </div>
+              
+              <div class="form-group">
+                <label for="modalPreco">Preço (R$)</label>
+                <input type="number" id="modalPreco" class="form-input" step="0.01" placeholder="0.00">
+              </div>
+            </div>
+            
+            <!-- Botões de Ação -->
             <div class="modal-actions">
-              <button type="button" id="salvarBtnIndividual" class="btn btn-primary">Salvar</button>
-              <button type="button" id="cancelarBtnIndividual" class="btn btn-secondary">Cancelar</button>
+              <button type="button" id="salvarBtnIndividual" class="btn btn-primary">
+                <i class="fas fa-save"></i> Salvar
+              </button>
+              <button type="button" id="cancelarBtnIndividual" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Cancelar
+              </button>
             </div>
           </form>
         </div>
       </div>
     </div>
 
-    <!-- Modal de Relatório -->
-    <div id="modalRelatorio" class="modal">
+    <!-- Modal de Relatório para Licenças Individuais -->
+    <div id="modalRelatorioIndividuais" class="modal">
       <div class="modal-content modal-relatorio">
         <div class="modal-header">
-          <h2 id="modalTitleRelatorio">Gerar Relatório de Licenças</h2>
+          <h2 id="modalTitleRelatorioIndividuais">Gerar Relatório de Licenças Individuais</h2>
           <button type="button" class="close-modal">
             <i class="fas fa-times"></i>
           </button>
@@ -256,70 +237,77 @@
         
         <div class="modal-body">
           <div class="form-group">
-            <label for="filtroRelatorio">Filtrar por:</label>
-            <select id="filtroRelatorio" class="form-input">
+            <label for="filtroRelatorioIndividuais">Filtrar por:</label>
+            <select id="filtroRelatorioIndividuais" class="form-input">
               <option value="todos">Todas as Licenças</option>
               <option value="software">Por Software</option>
               <option value="status">Por Status</option>
+              <option value="usuario">Por Usuário</option>
             </select>
           </div>
           
-          <div class="form-group" id="grupoFiltroEspecifico" style="display: none;">
-            <label id="labelFiltroEspecifico">Filtro específico:</label>
-            <select id="filtroEspecifico" class="form-input">
+          <div class="form-group" id="grupoFiltroEspecificoIndividuais" style="display: none;">
+            <label id="labelFiltroEspecificoIndividuais">Filtro específico:</label>
+            <select id="filtroEspecificoIndividuais" class="form-input">
               <!-- Opções serão preenchidas via JavaScript -->
             </select>
           </div>
           
           <div class="form-group">
-            <label for="ordenacaoRelatorio">Ordenar por:</label>
-            <select id="ordenacaoRelatorio" class="form-input">
+            <label for="ordenacaoRelatorioIndividuais">Ordenar por:</label>
+            <select id="ordenacaoRelatorioIndividuais" class="form-input">
               <option value="software">Nome do Software</option>
-              <option value="quantidade">Quantidade</option>
-              <option value="data">Data de Expiração</option>
+              <option value="usuario">Nome do Usuário</option>
+              <option value="hostname">Hostname</option>
               <option value="status">Status</option>
+              <option value="dataCadastro">Data de Cadastro</option>
             </select>
           </div>
           
           <div class="modal-actions">
-            <button type="button" id="visualizarRelatorio" class="btn btn-primary">
+            <button type="button" id="visualizarRelatorioIndividuais" class="btn btn-primary">
               <i class="fas fa-eye"></i> Visualizar
             </button>
-            <button type="button" id="imprimirRelatorio" class="btn btn-success">
+            <button type="button" id="imprimirRelatorioIndividuais" class="btn btn-success">
               <i class="fas fa-print"></i> Imprimir
             </button>
-            <button type="button" id="cancelarRelatorio" class="btn btn-secondary">Cancelar</button>
+            <button type="button" id="cancelarRelatorioIndividuais" class="btn btn-secondary">Cancelar</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Área do Relatório para Impressão -->
-    <div id="areaRelatorio" class="relatorio-container" style="display: none;">
+    <!-- Área do Relatório Individual para Impressão -->
+    <div id="areaRelatorioIndividuais" class="relatorio-container" style="display: none;">
       <div class="cabecalho-relatorio">
-        <h1 class="titulo-relatorio">Relatório de Licenças de Software</h1>
-        <p class="data-relatorio" id="dataRelatorio">Data: </p>
+        <h1 class="titulo-relatorio">Relatório de Licenças Individuais</h1>
+        <p class="data-relatorio" id="dataRelatorioIndividuais">Data: </p>
       </div>
       
-      <table id="tabelaRelatorio" class="tabela-relatorio">
+      <table id="tabelaRelatorioIndividuais" class="tabela-relatorio">
         <thead>
           <tr>
             <th>Software</th>
-            <th>Versão</th>
-            <th>Quantidade Total</th>
-            <th>Em Uso</th>
-            <th>Sem Uso</th>
-            <th>Data de Expiração</th>
+            <th>Chave de Ativação</th>
+            <th>Usuário</th>
+            <th>Hostname</th>
+            <th>Patrimônio</th>
             <th>Status</th>
+            <th>Nº Pedido</th>
+            <th>Data Cadastro</th>
           </tr>
         </thead>
-        <tbody id="corpoRelatorio">
+        <tbody id="corpoRelatorioIndividuais">
           <!-- Dados serão preenchidos via JavaScript -->
         </tbody>
       </table>
       
+      <div class="resumo-relatorio" id="resumoRelatorioIndividuais">
+        <!-- Resumo será preenchido via JavaScript -->
+      </div>
+      
       <div class="rodape-relatorio">
-        <p>Relatório gerado em <span id="dataGeracao"></span></p>
+        <p>Relatório gerado em <span id="dataGeracaoIndividuais"></span></p>
         <p class="assinatura">___________________________________</p>
         <p>Responsável</p>
       </div>  
