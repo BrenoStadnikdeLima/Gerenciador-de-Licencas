@@ -19,6 +19,44 @@ let estado = {
     editingCell: null
 };
 
+// ======= ELEMENTOS DOM =======
+const elementos = {
+    tabela: document.getElementById("tableBodyEquipamentos"),
+    searchInput: document.getElementById("searchInputEquipamentos"),
+    searchBtn: document.getElementById("searchBtnEquipamentos"),
+    statusFilter: document.getElementById("statusFilterEquipamentos"),
+    departamentoFilter: document.getElementById("departamentoFilterEquipamentos"),
+    modal: document.getElementById("modalEquipamentos"),
+    modalTitle: document.getElementById("modalTitleEquipamentos"),
+    formEquipamento: document.getElementById("formEquipamento"),
+    salvarBtn: document.getElementById("salvarBtnEquipamentos"),
+    cancelarBtn: document.getElementById("cancelarBtnEquipamentos"),
+    modalUsuarioNome: document.getElementById("modalUsuarioNome"),
+    modalUsuarioAnydesk: document.getElementById("modalUsuarioAnydesk"),
+    modalUsuarioDepartamento: document.getElementById("modalUsuarioDepartamento"),
+    modalUsuarioStatus: document.getElementById("modalUsuarioStatus"),
+    modalUsuarioDesktop: document.getElementById("modalUsuarioDesktop"),
+    modalUsuarioMonitor1: document.getElementById("modalUsuarioMonitor1"),
+    modalUsuarioMonitor2: document.getElementById("modalUsuarioMonitor2"),
+    modalUsuarioNobreak: document.getElementById("modalUsuarioNobreak"),
+    closeModal: document.querySelector("#modalEquipamentos .close-modal"),
+    btnAdicionar: document.getElementById("adicionarEquipamento"),
+    btnLimparDados: document.getElementById("limparDados"),
+    btnGerarRelatorio: document.getElementById("gerarRelatorio"),
+    btnLimparFiltros: document.getElementById("limparFiltros"),
+    modalRelatorio: document.getElementById("modalRelatorio"),
+    filtroRelatorio: document.getElementById("filtroRelatorio"),
+    filtroStatusRelatorio: document.getElementById("filtroStatusRelatorio"),
+    ordenacaoRelatorio: document.getElementById("ordenacaoRelatorio"),
+    btnVisualizarRelatorio: document.getElementById("visualizarRelatorio"),
+    btnImprimirRelatorio: document.getElementById("imprimirRelatorio"),
+    btnCancelarRelatorio: document.getElementById("cancelarRelatorio"),
+    areaRelatorio: document.getElementById("areaRelatorio"),
+    dataRelatorio: document.getElementById("dataRelatorio"),
+    corpoRelatorio: document.getElementById("corpoRelatorio"),
+    dataGeracao: document.getElementById("dataGeracao")
+};
+
 // ======= INICIALIZAÇÃO FIREBASE =======
 function inicializarFirebase() {
     try {
@@ -156,44 +194,6 @@ function salvarDadosLocais() {
     }
 }
 
-// ======= ELEMENTOS DOM =======
-const elementos = {
-    tabela: document.getElementById("tableBodyEquipamentos"),
-    searchInput: document.getElementById("searchInputEquipamentos"),
-    statusFilter: document.getElementById("statusFilterEquipamentos"),
-    departamentoFilter: document.getElementById("departamentoFilterEquipamentos"),
-    modal: document.getElementById("modalEquipamentos"),
-    modalTitle: document.getElementById("modalTitleEquipamentos"),
-    formEquipamento: document.getElementById("formEquipamento"),
-    salvarBtn: document.getElementById("salvarBtnEquipamentos"),
-    cancelarBtn: document.getElementById("cancelarBtnEquipamentos"),
-    modalUsuarioNome: document.getElementById("modalUsuarioNome"),
-    modalUsuarioAnydesk: document.getElementById("modalUsuarioAnydesk"),
-    modalUsuarioDepartamento: document.getElementById("modalUsuarioDepartamento"),
-    modalUsuarioStatus: document.getElementById("modalUsuarioStatus"),
-    modalUsuarioDesktop: document.getElementById("modalUsuarioDesktop"),
-    modalUsuarioMonitor1: document.getElementById("modalUsuarioMonitor1"),
-    modalUsuarioMonitor2: document.getElementById("modalUsuarioMonitor2"),
-    modalUsuarioNobreak: document.getElementById("modalUsuarioNobreak"),
-    closeModal: document.querySelector("#modalEquipamentos .close-modal"),
-    btnAdicionar: document.getElementById("adicionarEquipamento"),
-    btnLimparDados: document.getElementById("limparDados"),
-    modalRelatorio: document.getElementById("modalRelatorio"),
-    btnGerarRelatorio: document.getElementById("gerarRelatorio"),
-    filtroRelatorio: document.getElementById("filtroRelatorio"),
-    grupoFiltroEspecifico: document.getElementById("grupoFiltroEspecifico"),
-    labelFiltroEspecifico: document.getElementById("labelFiltroEspecifico"),
-    filtroEspecifico: document.getElementById("filtroEspecifico"),
-    ordenacaoRelatorio: document.getElementById("ordenacaoRelatorio"),
-    btnVisualizarRelatorio: document.getElementById("visualizarRelatorio"),
-    btnImprimirRelatorio: document.getElementById("imprimirRelatorio"),
-    btnCancelarRelatorio: document.getElementById("cancelarRelatorio"),
-    areaRelatorio: document.getElementById("areaRelatorio"),
-    dataRelatorio: document.getElementById("dataRelatorio"),
-    corpoRelatorio: document.getElementById("corpoRelatorio"),
-    dataGeracao: document.getElementById("dataGeracao")
-};
-
 // ======= INICIALIZAÇÃO =======
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('🚀 Iniciando aplicação...');
@@ -216,7 +216,17 @@ document.addEventListener('DOMContentLoaded', async function() {
 // ======= CONFIGURAÇÃO DE EVENTOS =======
 function configurarEventListeners() {
     // Pesquisa e Filtros
-    if (elementos.searchInput) elementos.searchInput.addEventListener("input", filtrarUsuarios);
+    if (elementos.searchInput) {
+        elementos.searchInput.addEventListener("input", filtrarUsuarios);
+        elementos.searchInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") filtrarUsuarios();
+        });
+    }
+    
+    if (elementos.searchBtn) {
+        elementos.searchBtn.addEventListener("click", filtrarUsuarios);
+    }
+    
     if (elementos.statusFilter) elementos.statusFilter.addEventListener("change", filtrarUsuarios);
     if (elementos.departamentoFilter) elementos.departamentoFilter.addEventListener("change", filtrarUsuarios);
     
@@ -237,15 +247,26 @@ function configurarEventListeners() {
         elementos.btnLimparDados.addEventListener("click", limparTodosDados);
     }
     
+    if (elementos.btnLimparFiltros) {
+        elementos.btnLimparFiltros.addEventListener("click", limparFiltros);
+    }
+    
+    // Relatório
     if (elementos.btnGerarRelatorio) {
         elementos.btnGerarRelatorio.addEventListener("click", abrirModalRelatorio);
     }
     
-    // Relatório
-    if (elementos.filtroRelatorio) elementos.filtroRelatorio.addEventListener("change", configurarFiltroRelatorio);
-    if (elementos.btnVisualizarRelatorio) elementos.btnVisualizarRelatorio.addEventListener("click", gerarRelatorio);
-    if (elementos.btnImprimirRelatorio) elementos.btnImprimirRelatorio.addEventListener("click", imprimirRelatorio);
-    if (elementos.btnCancelarRelatorio) elementos.btnCancelarRelatorio.addEventListener("click", fecharModalRelatorio);
+    if (elementos.btnVisualizarRelatorio) {
+        elementos.btnVisualizarRelatorio.addEventListener("click", visualizarRelatorioComFiltros);
+    }
+    
+    if (elementos.btnImprimirRelatorio) {
+        elementos.btnImprimirRelatorio.addEventListener("click", imprimirRelatorioComFiltros);
+    }
+    
+    if (elementos.btnCancelarRelatorio) {
+        elementos.btnCancelarRelatorio.addEventListener("click", fecharModalRelatorio);
+    }
     
     // Fechar modais
     if (elementos.modal) {
@@ -262,6 +283,13 @@ function configurarEventListeners() {
         const closeBtn = elementos.modalRelatorio.querySelector('.close-modal');
         if (closeBtn) closeBtn.addEventListener('click', fecharModalRelatorio);
     }
+    
+    // Fechar relatório
+    document.addEventListener('click', function(e) {
+        if (e.target.id === 'fecharRelatorio' || e.target.closest('#fecharRelatorio')) {
+            fecharRelatorio();
+        }
+    });
     
     // Tecla ESC
     document.addEventListener("keydown", (e) => {
@@ -300,14 +328,17 @@ function atualizarFiltroDepartamentos() {
     const departamentoFilter = elementos.departamentoFilter;
     if (!departamentoFilter) return;
     
+    // Salvar valor atual selecionado
+    const valorAtual = departamentoFilter.value;
+    
     // Limpar opções exceto "Todos"
     departamentoFilter.innerHTML = '<option value="Todos">Departamento</option>';
     
     // Pegar departamentos únicos dos dados
-    const departamentos = [...new Set(usuarios.map(user => user.departamento).filter(Boolean))];
-    
-    // Ordenar alfabeticamente
-    departamentos.sort();
+    const departamentos = [...new Set(usuarios
+        .map(user => user.departamento)
+        .filter(Boolean)
+        .sort())];
     
     // Adicionar ao filtro
     departamentos.forEach(dept => {
@@ -316,6 +347,11 @@ function atualizarFiltroDepartamentos() {
         option.textContent = dept;
         departamentoFilter.appendChild(option);
     });
+    
+    // Restaurar valor selecionado se ainda existir
+    if (valorAtual && departamentos.includes(valorAtual)) {
+        departamentoFilter.value = valorAtual;
+    }
     
     console.log(`📊 Filtro de departamentos atualizado: ${departamentos.length} departamentos`);
 }
@@ -347,12 +383,16 @@ function renderizarTabela(dados = estado.dadosFiltrados) {
     if (dados.length === 0) {
         elementos.tabela.innerHTML = `
             <tr>
-                <td colspan="6" style="text-align: center; padding: 20px; color: #666;">
-                    <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
-                    Nenhum usuário encontrado
+                <td colspan="6" style="text-align: center; padding: 40px; color: #666;">
+                    <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
+                    <h3 style="margin-bottom: 10px;">Nenhum usuário encontrado</h3>
+                    <p style="opacity: 0.7;">Tente ajustar os filtros ou termos de pesquisa</p>
                 </td>
             </tr>
         `;
+        
+        // Atualizar contador mesmo quando não há resultados
+        mostrarContadorResultados();
         return;
     }
     
@@ -389,10 +429,18 @@ function renderizarTabela(dados = estado.dadosFiltrados) {
             <td>${usuario.data || 'N/A'}</td>
             <td>
                 <div class="actions">
-                    <button class="action-btn view-user-kit" title="Ver equipamentos">👤</button>
-                    <button class="action-btn visualizar-btn" title="Visualizar"><i class="fas fa-eye"></i></button>
-                    <button class="action-btn editar-btn" title="Editar"><i class="fas fa-pen"></i></button>
-                    <button class="action-btn excluir-btn" title="Excluir"><i class="fas fa-trash"></i></button>
+                    <button class="action-btn view-user-kit" title="Ver equipamentos">
+                        <i class="fas fa-laptop"></i>
+                    </button>
+                    <button class="action-btn visualizar-btn" title="Visualizar">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="action-btn editar-btn" title="Editar">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                    <button class="action-btn excluir-btn" title="Excluir">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </div>
             </td>
         `;
@@ -404,6 +452,9 @@ function renderizarTabela(dados = estado.dadosFiltrados) {
     // ATUALIZAR FILTRO DE DEPARTAMENTOS DINAMICAMENTE
     atualizarFiltroDepartamentos();
     atualizarSugestoesDepartamentos();
+    
+    // Atualizar contador de resultados
+    mostrarContadorResultados();
 }
 
 function configurarEventosBotoes() {
@@ -440,6 +491,31 @@ function configurarEventosBotoes() {
             if (originalIndex !== -1) excluirUsuario(originalIndex);
         });
     });
+}
+
+// ======= CONTADOR DE RESULTADOS =======
+function mostrarContadorResultados() {
+    // Remover contador anterior se existir
+    const contadorAnterior = document.getElementById('contadorResultados');
+    if (contadorAnterior) {
+        contadorAnterior.remove();
+    }
+    
+    // Criar e adicionar novo contador
+    const contador = document.createElement('div');
+    contador.id = 'contadorResultados';
+    contador.className = 'contador-resultados';
+    contador.innerHTML = `
+        <span class="contador-texto">
+            ${estado.dadosFiltrados.length} de ${usuarios.length} usuários encontrados
+        </span>
+    `;
+    
+    // Inserir após a seção de filtros
+    const filterSection = document.querySelector('.filter-section');
+    if (filterSection && filterSection.parentNode) {
+        filterSection.parentNode.insertBefore(contador, filterSection.nextSibling);
+    }
 }
 
 // ======= MODAL FUNCTIONS =======
@@ -579,16 +655,34 @@ async function limparTodosDados() {
     alert('✅ Todos os dados foram apagados!');
 }
 
-// ======= FILTROS E RELATÓRIOS =======
+// ======= LIMPAR FILTROS =======
+function limparFiltros() {
+    // Limpar campos de pesquisa e filtros
+    if (elementos.searchInput) elementos.searchInput.value = '';
+    if (elementos.statusFilter) elementos.statusFilter.value = 'Todos';
+    if (elementos.departamentoFilter) elementos.departamentoFilter.value = 'Todos';
+    
+    // Restaurar dados completos
+    estado.dadosFiltrados = [...usuarios];
+    renderizarTabela();
+    
+    console.log('🧹 Filtros limpos');
+}
+
+// ======= FILTROS =======
 function filtrarUsuarios() {
-    const termo = elementos.searchInput?.value.toLowerCase() || '';
+    const termo = elementos.searchInput?.value.toLowerCase().trim() || '';
     const status = elementos.statusFilter?.value || 'Todos';
     const departamento = elementos.departamentoFilter?.value || 'Todos';
     
+    console.log(`🔍 Filtrando: "${termo}" | Status: ${status} | Depto: ${departamento}`);
+    
     estado.dadosFiltrados = usuarios.filter(usuario => {
-        const matchesSearch = usuario.usuario.toLowerCase().includes(termo) ||
-                             usuario.anydesk.toLowerCase().includes(termo) ||
-                             usuario.departamento.toLowerCase().includes(termo);
+        const matchesSearch = !termo || 
+                             usuario.usuario?.toLowerCase().includes(termo) ||
+                             usuario.anydesk?.toLowerCase().includes(termo) ||
+                             usuario.departamento?.toLowerCase().includes(termo);
+        
         const matchesStatus = status === 'Todos' || usuario.status === status;
         const matchesDepartamento = departamento === 'Todos' || usuario.departamento === departamento;
         
@@ -596,12 +690,17 @@ function filtrarUsuarios() {
     });
     
     renderizarTabela();
+    
+    // Mostrar contador de resultados
+    mostrarContadorResultados();
 }
 
+// ======= FUNÇÕES DO RELATÓRIO COM FILTROS =======
 function abrirModalRelatorio() {
     if (elementos.modalRelatorio) {
+        // Atualizar a lista de departamentos no filtro
+        atualizarFiltroDepartamentosRelatorio();
         elementos.modalRelatorio.style.display = 'flex';
-        configurarFiltroRelatorio();
     }
 }
 
@@ -609,66 +708,147 @@ function fecharModalRelatorio() {
     if (elementos.modalRelatorio) elementos.modalRelatorio.style.display = 'none';
 }
 
-function configurarFiltroRelatorio() {
-    if (!elementos.filtroRelatorio) return;
+function atualizarFiltroDepartamentosRelatorio() {
+    const filtroRelatorio = elementos.filtroRelatorio;
+    if (!filtroRelatorio) return;
     
-    const filtro = elementos.filtroRelatorio.value;
-    if (elementos.grupoFiltroEspecifico) {
-        elementos.grupoFiltroEspecifico.style.display = filtro === 'todos' ? 'none' : 'block';
-    }
+    // Salvar valor selecionado atual
+    const valorAtual = filtroRelatorio.value;
     
-    if (elementos.filtroEspecifico) {
-        elementos.filtroEspecifico.innerHTML = '';
-        
-        if (filtro === 'status') {
-            const status = ['Em uso', 'Em manutenção', 'Sem uso'];
-            status.forEach(s => {
-                const option = document.createElement('option');
-                option.value = s;
-                option.textContent = s;
-                elementos.filtroEspecifico.appendChild(option);
-            });
-        } else if (filtro === 'departamento') {
-            // Usar departamentos dinâmicos do Firebase
-            const departamentos = [...new Set(usuarios.map(u => u.departamento).filter(Boolean))];
-            departamentos.sort();
-            departamentos.forEach(depto => {
-                const option = document.createElement('option');
-                option.value = depto;
-                option.textContent = depto;
-                elementos.filtroEspecifico.appendChild(option);
-            });
+    // Limpar opções exceto "Todos"
+    filtroRelatorio.innerHTML = '<option value="todos">Todos os Departamentos</option>';
+    
+    // Pegar departamentos únicos dos dados (usando a mesma lógica da tabela)
+    const departamentos = [...new Set(usuarios
+        .map(user => user.departamento)
+        .filter(Boolean)
+        .sort())];
+    
+    // Adicionar departamentos ao filtro
+    departamentos.forEach(dept => {
+        const option = document.createElement('option');
+        option.value = dept;
+        option.textContent = `Apenas ${dept}`;
+        filtroRelatorio.appendChild(option);
+    });
+    
+    // Restaurar valor selecionado se ainda existir
+    if (valorAtual) {
+        const opcaoExistente = Array.from(filtroRelatorio.options).find(opt => opt.value === valorAtual);
+        if (opcaoExistente) {
+            filtroRelatorio.value = valorAtual;
         }
     }
 }
 
-function gerarRelatorio() {
-    const filtro = elementos.filtroRelatorio?.value || 'todos';
-    const filtroEspecifico = elementos.filtroEspecifico?.value || '';
-    const ordenacao = elementos.ordenacaoRelatorio?.value || 'usuario';
+function visualizarRelatorioComFiltros() {
+    const departamento = elementos.filtroRelatorio?.value || 'todos';
+    const status = elementos.filtroStatusRelatorio?.value || 'todos';
+    const ordenacao = elementos.ordenacaoRelatorio?.value || 'departamento';
     
+    gerarRelatorioComFiltros(departamento, status, ordenacao);
+    
+    // Fechar modal e rolar até o relatório
+    fecharModalRelatorio();
+    if (elementos.areaRelatorio) {
+        setTimeout(() => {
+            elementos.areaRelatorio.scrollIntoView({ behavior: 'smooth' });
+        }, 300);
+    }
+}
+
+function imprimirRelatorioComFiltros() {
+    const departamento = elementos.filtroRelatorio?.value || 'todos';
+    const status = elementos.filtroStatusRelatorio?.value || 'todos';
+    const ordenacao = elementos.ordenacaoRelatorio?.value || 'departamento';
+    
+    gerarRelatorioComFiltros(departamento, status, ordenacao);
+    
+    // Fechar modal e imprimir
+    fecharModalRelatorio();
+    setTimeout(() => {
+        window.print();
+    }, 500);
+}
+
+function gerarRelatorioComFiltros(departamento = 'todos', status = 'todos', ordenacao = 'departamento') {
     let dadosRelatorio = [...usuarios];
     
-    if (filtro !== 'todos' && filtroEspecifico) {
-        dadosRelatorio = dadosRelatorio.filter(usuario => usuario[filtro] === filtroEspecifico);
+    // Aplicar filtros
+    if (departamento !== 'todos') {
+        dadosRelatorio = dadosRelatorio.filter(usuario => usuario.departamento === departamento);
     }
     
+    if (status !== 'todos') {
+        dadosRelatorio = dadosRelatorio.filter(usuario => usuario.status === status);
+    }
+    
+    // Ordenar
     dadosRelatorio.sort((a, b) => {
+        // Primeiro ordena por departamento (se não estiver filtrado por um departamento específico)
+        if (ordenacao === 'departamento' && departamento === 'todos') {
+            const deptA = a.departamento || 'ZZZ';
+            const deptB = b.departamento || 'ZZZ';
+            if (deptA !== deptB) {
+                return deptA.localeCompare(deptB);
+            }
+        }
+        
+        // Ordenar pelo campo selecionado
         if (ordenacao === 'data') {
             return new Date(b.data.split('/').reverse().join('-')) - new Date(a.data.split('/').reverse().join('-'));
         }
-        return a[ordenacao].localeCompare(b[ordenacao]);
+        if (ordenacao === 'status') {
+            return a.status.localeCompare(b.status);
+        }
+        if (ordenacao === 'usuario') {
+            return a.usuario.localeCompare(b.usuario);
+        }
+        if (ordenacao === 'departamento') {
+            const deptA = a.departamento || 'ZZZ';
+            const deptB = b.departamento || 'ZZZ';
+            return deptA.localeCompare(deptB);
+        }
+        
+        return 0;
     });
     
     // Atualizar UI do relatório
     const agora = new Date();
-    if (elementos.dataRelatorio) elementos.dataRelatorio.textContent = `Data: ${agora.toLocaleDateString('pt-BR')}`;
+    if (elementos.dataRelatorio) {
+        let tituloFiltro = '';
+        if (departamento !== 'todos') tituloFiltro += ` - Departamento: ${departamento}`;
+        if (status !== 'todos') tituloFiltro += ` - Status: ${status}`;
+        
+        elementos.dataRelatorio.textContent = `Relatório${tituloFiltro} - Data: ${agora.toLocaleDateString('pt-BR')}`;
+    }
+    
     if (elementos.dataGeracao) elementos.dataGeracao.textContent = agora.toLocaleDateString('pt-BR');
     
     if (elementos.corpoRelatorio) {
         elementos.corpoRelatorio.innerHTML = '';
+        
+        let departamentoAtual = '';
+        
         dadosRelatorio.forEach(usuario => {
+            // Verificar se mudou o departamento (apenas se não estiver filtrado por um departamento específico)
+            if (departamento === 'todos' && usuario.departamento !== departamentoAtual) {
+                departamentoAtual = usuario.departamento;
+                
+                // Adicionar linha de cabeçalho do departamento
+                const trHeader = document.createElement('tr');
+                trHeader.className = 'departamento-header';
+                trHeader.innerHTML = `
+                    <td colspan="5" style="background-color: #f8f9fa; font-weight: bold; padding: 15px; border-bottom: 2px solid var(--primary-blue);">
+                        <i class="fas fa-building"></i> DEPARTAMENTO: ${departamentoAtual || 'NÃO INFORMADO'}
+                    </td>
+                `;
+                elementos.corpoRelatorio.appendChild(trHeader);
+            }
+            
+            // Adicionar linha do usuário
             const tr = document.createElement('tr');
+            tr.className = 'usuario-row';
             tr.innerHTML = `
                 <td>${usuario.usuario}</td>
                 <td>${usuario.anydesk}</td>
@@ -678,14 +858,28 @@ function gerarRelatorio() {
             `;
             elementos.corpoRelatorio.appendChild(tr);
         });
+        
+        // Mensagem se não houver resultados
+        if (dadosRelatorio.length === 0) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td colspan="5" style="text-align: center; padding: 40px; color: #666;">
+                    <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                    Nenhum usuário encontrado com os filtros selecionados
+                </td>
+            `;
+            elementos.corpoRelatorio.appendChild(tr);
+        }
     }
     
+    // Mostrar o relatório
     if (elementos.areaRelatorio) elementos.areaRelatorio.style.display = 'block';
-    if (elementos.modalRelatorio) elementos.modalRelatorio.style.display = 'none';
 }
 
-function imprimirRelatorio() {
-    window.print();
+function fecharRelatorio() {
+    if (elementos.areaRelatorio) {
+        elementos.areaRelatorio.style.display = 'none';
+    }
 }
 
 // ======= UTILITÁRIOS =======

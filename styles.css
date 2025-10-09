@@ -1199,3 +1199,343 @@ body {
 .relatorio-container.printing .tabela-relatorio {
     border: 1px solid #000 !important;
 }
+
+/*Alteração feita de casa testar*/
+/* ======= CONTADOR DE RESULTADOS ======= */
+.contador-resultados {
+    background: #e9ecef;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin: 15px 0;
+    border-left: 4px solid var(--primary-blue);
+}
+
+.contador-texto {
+    font-weight: 600;
+    color: var(--dark-gray);
+    font-size: 14px;
+}
+
+/* ======= MELHORIAS NOS BOTÕES ======= */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+    padding: 10px 16px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+/* Botão de pesquisa mais visível */
+.search-btn {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--primary-blue);
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.search-btn:hover {
+    background: var(--secondary-blue);
+    transform: translateY(-50%) scale(1.05);
+}
+
+/* Estados dos filtros ativos */
+.search-input:not(:placeholder-shown) {
+    border-color: var(--primary-blue);
+    background-color: #f8f9fa;
+}
+
+.filter-box select:not([value="Todos"]) {
+    border-color: var(--primary-blue);
+    background-color: #f8f9fa;
+}
+
+/* Ícone do botão de equipamentos */
+.view-user-kit:hover { 
+    color: var(--primary-blue); 
+}
+
+/* Seção de equipamentos no modal */
+.equipment-section {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.equipment-section h4 {
+    color: var(--dark-gray);
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+/* ======= RESPONSIVIDADE PARA BOTÕES ======= */
+@media (max-width: 1024px) {
+    .filter-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .action-buttons {
+        margin-left: 0;
+        justify-content: center;
+        width: 100%;
+    }
+    
+    .action-buttons .btn {
+        flex: 1;
+        min-width: 120px;
+        justify-content: center;
+    }
+    
+    .contador-resultados {
+        margin: 10px 0;
+        text-align: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+    }
+}
+
+/* ======= RODAPÉ DO RELATÓRIO ======= */
+.rodape-relatorio {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid var(--border-color);
+}
+
+.assinatura {
+    margin: 40px 0 10px 0;
+    font-size: 1.2rem;
+}
+
+.data-geracao {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 25px;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-light);
+    font-size: 1rem;
+}
+
+/* ======= ESTILOS PARA RELATÓRIO AGRUPADO ======= */
+.departamento-header {
+    background-color: #f8f9fa !important;
+    font-weight: 700 !important;
+    color: var(--primary-blue) !important;
+}
+
+.departamento-header td {
+    border-bottom: 2px solid var(--primary-blue) !important;
+    font-size: 14px !important;
+    padding: 12px 15px !important;
+}
+
+.usuario-row td {
+    border-bottom: 1px solid #dee2e6 !important;
+    padding: 10px 15px !important;
+}
+
+/* Destaque para quando muda o departamento */
+.usuario-row:not(:has(+ .departamento-header)) {
+    border-bottom: 1px solid #adb5bd !important;
+}
+
+/* ======= CONTADOR DE RESULTADOS ======= */
+.contador-resultados {
+    background: #e9ecef;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin: 15px 0;
+    border-left: 4px solid var(--primary-blue);
+}
+
+.contador-texto {
+    font-weight: 600;
+    color: var(--dark-gray);
+    font-size: 14px;
+}
+
+/* ======= MELHORIAS NOS BOTÕES ======= */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+    padding: 10px 16px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+/* Botão de pesquisa mais visível */
+.search-btn {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--primary-blue);
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.search-btn:hover {
+    background: var(--secondary-blue);
+    transform: translateY(-50%) scale(1.05);
+}
+
+/* Estados dos filtros ativos */
+.search-input:not(:placeholder-shown) {
+    border-color: var(--primary-blue);
+    background-color: #f8f9fa;
+}
+
+.filter-box select:not([value="Todos"]) {
+    border-color: var(--primary-blue);
+    background-color: #f8f9fa;
+}
+
+/* Ícone do botão de equipamentos */
+.view-user-kit:hover { 
+    color: var(--primary-blue); 
+}
+
+/* Seção de equipamentos no modal */
+.equipment-section {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.equipment-section h4 {
+    color: var(--dark-gray);
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+/* ======= MODAL DE RELATÓRIO ======= */
+.modal-relatorio {
+    max-width: 500px;
+}
+
+.modal-relatorio .form-group {
+    margin-bottom: 20px;
+}
+
+.modal-relatorio .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--dark-gray);
+}
+
+.modal-relatorio .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+/* ======= ESTILOS PARA RELATÓRIO AGRUPADO ======= */
+.departamento-header {
+    background-color: #f8f9fa !important;
+    font-weight: 700 !important;
+    color: var(--primary-blue) !important;
+}
+
+.departamento-header td {
+    border-bottom: 2px solid var(--primary-blue) !important;
+    font-size: 14px !important;
+    padding: 12px 15px !important;
+}
+
+.usuario-row td {
+    border-bottom: 1px solid #dee2e6 !important;
+    padding: 10px 15px !important;
+}
+
+.rodape-relatorio {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid var(--border-color);
+}
+
+.assinatura {
+    margin: 40px 0 10px 0;
+    font-size: 1.2rem;
+}
+
+.data-geracao {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 25px;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-light);
+    font-size: 1rem;
+}
+
+/* ======= RESPONSIVIDADE PARA BOTÕES ======= */
+@media (max-width: 1024px) {
+    .filter-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .action-buttons {
+        margin-left: 0;
+        justify-content: center;
+        width: 100%;
+    }
+    
+    .action-buttons .btn {
+        flex: 1;
+        min-width: 120px;
+        justify-content: center;
+    }
+    
+    .contador-resultados {
+        margin: 10px 0;
+        text-align: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+    }
+    
+    .modal-relatorio {
+        margin: 10px;
+    }
+}

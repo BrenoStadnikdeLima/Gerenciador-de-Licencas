@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
+<body>
   <!-- ======= CABEÇALHO ======= -->
   <header class="header">
     <div class="header-container">
@@ -38,7 +38,7 @@
       <div class="filter-section">
         <div class="search-box">
           <input type="text" id="searchInputEquipamentos" placeholder="Pesquisar usuário, anydesk ou departamento" class="search-input">
-          <button type="button" class="search-btn">
+          <button type="button" id="searchBtnEquipamentos" class="search-btn">
             <i class="fas fa-search"></i>
           </button>
         </div>
@@ -65,10 +65,13 @@
             <i class="fas fa-plus"></i> Nova Entrada
           </button>
           <button type="button" id="gerarRelatorio" class="btn btn-success">
-            <i class="fas fa-print"></i> Relatório
+            <i class="fas fa-eye"></i> Relatório
           </button>
           <button type="button" id="limparDados" class="btn btn-danger">
             <i class="fas fa-trash"></i> Limpar Tudo
+          </button>
+          <button type="button" id="limparFiltros" class="btn btn-secondary">
+            <i class="fas fa-times"></i> Limpar Filtros
           </button>
         </div>
       </div>
@@ -90,6 +93,41 @@
             <!-- Dados serão carregados via JavaScript -->
           </tbody>
         </table>
+      </div>
+
+      <!-- Área do Relatório (agora fica embaixo da tabela) -->
+      <div id="areaRelatorio" class="relatorio-container" style="display: none;">
+        <button type="button" id="fecharRelatorio" class="btn btn-secondary mb-20">
+          <i class="fas fa-times"></i> Fechar Relatório
+        </button>
+        
+        <div class="cabecalho-relatorio">
+          <div>
+            <h1 class="titulo-relatorio">Relatório de Equipamentos</h1>
+            <p class="data-relatorio" id="dataRelatorio">Data: </p>
+          </div>
+        </div>
+        
+        <table id="tabelaRelatorio" class="tabela-relatorio">
+          <thead>
+            <tr>
+              <th>Usuário</th>
+              <th>Anydesk</th>
+              <th>Departamento</th>
+              <th>Status</th>
+              <th>Última Atualização</th>
+            </tr>
+          </thead>
+          <tbody id="corpoRelatorio">
+            <!-- Dados serão preenchidos via JavaScript -->
+          </tbody>
+        </table>
+        
+        <div class="rodape-relatorio">
+          <p>Relatório gerado em <span id="dataGeracao"></span></p>
+          <p class="assinatura">___________________________________</p>
+          <p>Responsável</p>
+        </div>
       </div>
     </section>
 
@@ -175,6 +213,58 @@
       </div>
     </div>
 
+    <!-- Modal de Relatório com Filtros -->
+    <div id="modalRelatorio" class="modal">
+      <div class="modal-content modal-relatorio">
+        <div class="modal-header">
+          <h2 id="modalTitleRelatorio">Gerar Relatório</h2>
+          <button type="button" class="close-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="filtroRelatorio">Filtrar por Departamento:</label>
+            <select id="filtroRelatorio" class="form-input">
+              <option value="todos">Todos os Departamentos</option>
+              <!-- Departamentos serão carregados dinamicamente -->
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="filtroStatusRelatorio">Filtrar por Status:</label>
+            <select id="filtroStatusRelatorio" class="form-input">
+              <option value="todos">Todos os Status</option>
+              <option value="Em uso">Em uso</option>
+              <option value="Em manutenção">Em manutenção</option>
+              <option value="Sem uso">Sem uso</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="ordenacaoRelatorio">Ordenar por:</label>
+            <select id="ordenacaoRelatorio" class="form-input">
+              <option value="departamento">Departamento</option>
+              <option value="usuario">Nome do Usuário</option>
+              <option value="status">Status</option>
+              <option value="data">Data de Modificação</option>
+            </select>
+          </div>
+          
+          <div class="modal-actions">
+            <button type="button" id="visualizarRelatorio" class="btn btn-primary">
+              <i class="fas fa-eye"></i> Visualizar
+            </button>
+            <button type="button" id="imprimirRelatorio" class="btn btn-success">
+              <i class="fas fa-print"></i> Imprimir
+            </button>
+            <button type="button" id="cancelarRelatorio" class="btn btn-secondary">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Modal de Visualização Rápida do Kit -->
     <div class="modal fade" id="userKitModal" tabindex="-1">
       <div class="modal-dialog">
@@ -206,85 +296,6 @@
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Modal de Relatório -->
-    <div id="modalRelatorio" class="modal">
-      <div class="modal-content modal-relatorio">
-        <div class="modal-header">
-          <h2 id="modalTitleRelatorio">Gerar Relatório</h2>
-          <button type="button" class="close-modal">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-        
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="filtroRelatorio">Filtrar por:</label>
-            <select id="filtroRelatorio" class="form-input">
-              <option value="todos">Todos os Usuários</option>
-              <option value="departamento">Por Departamento</option>
-              <option value="status">Por Status</option>
-            </select>
-          </div>
-          
-          <div class="form-group" id="grupoFiltroEspecifico" style="display: none;">
-            <label id="labelFiltroEspecifico">Filtro específico:</label>
-            <select id="filtroEspecifico" class="form-input">
-              <!-- Opções serão preenchidas via JavaScript -->
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label for="ordenacaoRelatorio">Ordenar por:</label>
-            <select id="ordenacaoRelatorio" class="form-input">
-              <option value="usuario">Nome do Usuário</option>
-              <option value="departamento">Departamento</option>
-              <option value="status">Status</option>
-              <option value="data">Data de Modificação</option>
-            </select>
-          </div>
-          
-          <div class="modal-actions">
-            <button type="button" id="visualizarRelatorio" class="btn btn-primary">
-              <i class="fas fa-eye"></i> Visualizar
-            </button>
-            <button type="button" id="imprimirRelatorio" class="btn btn-success">
-              <i class="fas fa-print"></i> Imprimir
-            </button>
-            <button type="button" id="cancelarRelatorio" class="btn btn-secondary">Cancelar</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Área do Relatório para Impressão -->
-    <div id="areaRelatorio" class="relatorio-container">
-      <div class="cabecalho-relatorio">
-        <h1 class="titulo-relatorio">Relatório de Equipamentos</h1>
-        <p class="data-relatorio" id="dataRelatorio">Data: </p>
-      </div>
-      
-      <table id="tabelaRelatorio" class="tabela-relatorio">
-        <thead>
-          <tr>
-            <th>Usuário</th>
-            <th>Anydesk</th>
-            <th>Departamento</th>
-            <th>Status</th>
-            <th>Última Atualização</th>
-          </tr>
-        </thead>
-        <tbody id="corpoRelatorio">
-          <!-- Dados serão preenchidos via JavaScript -->
-        </tbody>
-      </table>
-      
-      <div class="rodape-relatorio">
-        <p>Relatório gerado em <span id="dataGeracao"></span></p>
-        <p class="assinatura">___________________________________</p>
-        <p>Responsável</p>
       </div>
     </div>
   </main>
