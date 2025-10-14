@@ -185,29 +185,41 @@
               <span>Informações Adicionais</span>
             </div>
             
-            <!-- Linha 4: Número do Pedido e Chamado -->
+            <!-- Linha 4: Centro de Custo e Número do Pedido -->
             <div class="form-row">
+              <div class="form-group">
+                <label for="modalCentroCusto">Centro de Custo</label>
+                <input type="text" id="modalCentroCusto" class="form-input" placeholder="Centro de custo">
+              </div>
+              
               <div class="form-group">
                 <label for="modalNumeroPedido">Número do Pedido</label>
                 <input type="text" id="modalNumeroPedido" class="form-input" placeholder="Número do pedido">
               </div>
-              
+            </div>
+            
+            <!-- Linha 5: Chamado e Data do Pedido -->
+            <div class="form-row">
               <div class="form-group">
                 <label for="modalChamado">Número do Chamado</label>
                 <input type="text" id="modalChamado" class="form-input" placeholder="Número do chamado">
               </div>
-            </div>
-            
-            <!-- Linha 5: Data do Pedido e Preço -->
-            <div class="form-row">
+              
               <div class="form-group">
                 <label for="modalDataPedido">Data do Pedido</label>
                 <input type="date" id="modalDataPedido" class="form-input">
               </div>
-              
+            </div>
+            
+            <!-- Linha 6: Preço -->
+            <div class="form-row">
               <div class="form-group">
                 <label for="modalPreco">Preço (R$)</label>
                 <input type="number" id="modalPreco" class="form-input" step="0.01" placeholder="0.00">
+              </div>
+              
+              <div class="form-group">
+                <!-- Espaço vazio para alinhamento -->
               </div>
             </div>
             
@@ -243,6 +255,7 @@
               <option value="software">Por Software</option>
               <option value="status">Por Status</option>
               <option value="usuario">Por Usuário</option>
+              <option value="centroCusto">Por Centro de Custo</option>
             </select>
           </div>
           
@@ -278,44 +291,45 @@
     </div>
 
     <!-- Área do Relatório Individual para Impressão -->
-<!-- Área do Relatório Individual para Impressão -->
-<div id="areaRelatorioIndividuais" class="relatorio-container" style="display: none;">
-  <div class="cabecalho-relatorio">
-    <h1 class="titulo-relatorio">Relatório de Licenças Individuais</h1>
-    <p class="data-relatorio" id="dataRelatorioIndividuais">Data: </p>
-  </div>
-  
-  <table id="tabelaRelatorioIndividuais" class="tabela-relatorio">
-    <thead>
-      <tr>
-        <th>Software</th>
-        <th>Chave de Ativação</th>
-        <th>Usuário</th>
-        <th>Hostname</th>
-        <th>Patrimônio</th>
-        <th>Status</th>
-        <th>Nº Pedido</th>
-        <th>Data Cadastro</th>
-      </tr>
-    </thead>
-    <tbody id="corpoRelatorioIndividuais">
-      <!-- Dados serão preenchidos via JavaScript -->
-    </tbody>
-  </table>
-  
-<div class="rodape-relatorio">
-    <div class="assinaturas-container">
-        <div class="assinatura-item">
+    <div id="areaRelatorioIndividuais" class="relatorio-container" style="display: none;">
+      <div class="cabecalho-relatorio">
+        <h1 class="titulo-relatorio">Relatório de Licenças Individuais</h1>
+        <p class="data-relatorio" id="dataRelatorioIndividuais">Data: </p>
+      </div>
+      
+      <table id="tabelaRelatorioIndividuais" class="tabela-relatorio">
+        <thead>
+          <tr>
+            <th>Software</th>
+            <th>Usuário</th>
+            <th>Hostname</th>
+            <th>Patrimônio</th>
+            <th>Status</th>
+            <th>Nº Pedido</th>
+            <th>Centro de Custo</th>
+            <th>Preço</th>
+            <th>Data Cadastro</th>
+          </tr>
+        </thead>
+        <tbody id="corpoRelatorioIndividuais">
+          <!-- Dados serão preenchidos via JavaScript -->
+        </tbody>
+      </table>
+      
+      <div class="rodape-relatorio">
+        <div class="assinaturas-container">
+          <div class="assinatura-item">
             <p class="linha-assinatura">___________________________________</p>
             <p class="nome-assinatura">Responsável TCI</p>
-        </div>
-        <div class="assinatura-item">
+          </div>
+          <div class="assinatura-item">
             <p class="linha-assinatura">___________________________________</p>
             <p class="nome-assinatura">Responsável do Setor</p>
+          </div>
         </div>
+        <p class="data-geracao">Relatório gerado em <span id="dataGeracaoIndividuais"></span></p>
+      </div>
     </div>
-    <p class="data-geracao">Relatório gerado em <span id="dataGeracaoIndividuais"></span></p>
-</div>
 
     <!-- Notificação de Sucesso -->
     <div id="alertaSucesso" class="notification">

@@ -58,6 +58,7 @@ const elementosIndividuais = {
     chamado: document.getElementById("modalChamado"),
     dataPedido: document.getElementById("modalDataPedido"),
     preco: document.getElementById("modalPreco"),
+    centroCusto: document.getElementById("modalCentroCusto"), // NOVO CAMPO
     
     closeModal: document.querySelector("#modalLicencaIndividual .close-modal")
 };
@@ -492,7 +493,7 @@ function abrirModalNovaIndividual() {
     }
     
     // Habilitar todos os campos
-    const campos = ['software', 'chaveAtivacao', 'usuario', 'hostname', 'patrimonio', 'status', 'numeroPedido', 'chamado', 'dataPedido', 'preco'];
+    const campos = ['software', 'chaveAtivacao', 'usuario', 'hostname', 'patrimonio', 'status', 'numeroPedido', 'chamado', 'dataPedido', 'preco', 'centroCusto'];
     campos.forEach(campo => {
         if (elementosIndividuais[campo]) {
             elementosIndividuais[campo].disabled = false;
@@ -540,6 +541,7 @@ function visualizarLicencaIndividual(index) {
     elementosIndividuais.chamado.value = licenca.chamado || '';
     elementosIndividuais.dataPedido.value = licenca.dataPedido || '';
     elementosIndividuais.preco.value = licenca.preco || '';
+    elementosIndividuais.centroCusto.value = licenca.centroCusto || ''; // NOVO CAMPO
     
     // Mostrar seção adicional
     if (elementosIndividuais.infoAdicionais) {
@@ -547,7 +549,7 @@ function visualizarLicencaIndividual(index) {
     }
     
     // Desabilitar campos
-    const campos = ['software', 'chaveAtivacao', 'usuario', 'hostname', 'patrimonio', 'status', 'numeroPedido', 'chamado', 'dataPedido', 'preco'];
+    const campos = ['software', 'chaveAtivacao', 'usuario', 'hostname', 'patrimonio', 'status', 'numeroPedido', 'chamado', 'dataPedido', 'preco', 'centroCusto'];
     campos.forEach(campo => {
         if (elementosIndividuais[campo]) {
             elementosIndividuais[campo].disabled = true;
@@ -586,6 +588,7 @@ function editarLicencaIndividual(index) {
     elementosIndividuais.chamado.value = licenca.chamado || '';
     elementosIndividuais.dataPedido.value = licenca.dataPedido || '';
     elementosIndividuais.preco.value = licenca.preco || '';
+    elementosIndividuais.centroCusto.value = licenca.centroCusto || ''; // NOVO CAMPO
     
     // Mostrar seção adicional
     if (elementosIndividuais.infoAdicionais) {
@@ -593,7 +596,7 @@ function editarLicencaIndividual(index) {
     }
     
     // Habilitar campos editáveis
-    const camposEditaveis = ['chaveAtivacao', 'usuario', 'hostname', 'patrimonio', 'status', 'numeroPedido', 'chamado', 'dataPedido', 'preco'];
+    const camposEditaveis = ['chaveAtivacao', 'usuario', 'hostname', 'patrimonio', 'status', 'numeroPedido', 'chamado', 'dataPedido', 'preco', 'centroCusto'];
     camposEditaveis.forEach(campo => {
         if (elementosIndividuais[campo]) {
             elementosIndividuais[campo].disabled = false;
@@ -639,7 +642,7 @@ function fecharModalIndividual() {
     }
     
     // Reabilitar todos os campos ao fechar
-    const campos = ['software', 'chaveAtivacao', 'usuario', 'hostname', 'patrimonio', 'status', 'numeroPedido', 'chamado', 'dataPedido', 'preco'];
+    const campos = ['software', 'chaveAtivacao', 'usuario', 'hostname', 'patrimonio', 'status', 'numeroPedido', 'chamado', 'dataPedido', 'preco', 'centroCusto'];
     campos.forEach(campo => {
         if (elementosIndividuais[campo]) {
             elementosIndividuais[campo].disabled = false;
@@ -675,6 +678,7 @@ async function salvarLicencaIndividual() {
     const chamado = elementosIndividuais.chamado.value.trim();
     const dataPedido = elementosIndividuais.dataPedido.value;
     const preco = parseFloat(elementosIndividuais.preco.value) || 0;
+    const centroCusto = elementosIndividuais.centroCusto.value.trim(); // NOVO CAMPO
     
     // Validações
     if (!software || !chaveAtivacao || !usuario || !hostname) {
@@ -701,6 +705,7 @@ async function salvarLicencaIndividual() {
             chamado,
             dataPedido,
             preco,
+            centroCusto, // NOVO CAMPO
             dataCadastro: new Date().toISOString()
         };
         
@@ -718,7 +723,8 @@ async function salvarLicencaIndividual() {
             numeroPedido,
             chamado,
             dataPedido,
-            preco
+            preco,
+            centroCusto // NOVO CAMPO
         };
         mostrarNotificacao('Licença individual atualizada com sucesso!');
     }
@@ -1137,6 +1143,9 @@ function configurarFiltroRelatorioIndividuais() {
         case 'usuario':
             labelFiltro.textContent = 'Usuário:';
             break;
+        case 'centroCusto':
+            labelFiltro.textContent = 'Centro de Custo:'; // NOVO CASO
+            break;
         default:
             labelFiltro.textContent = 'Filtro específico:';
     }
@@ -1170,6 +1179,28 @@ function configurarFiltroRelatorioIndividuais() {
             option.textContent = usuario;
             filtroEspecifico.appendChild(option);
         });
+    } else if (tipoFiltro === 'centroCusto') {
+        // NOVO FILTRO: Pegar centros de custo únicos e não vazios
+        const centrosCusto = [...new Set(licencasIndividuais
+            .map(lic => lic.centroCusto)
+            .filter(centro => centro && centro.trim() !== '')
+        )];
+        centrosCusto.sort();
+        
+        if (centrosCusto.length === 0) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'Nenhum centro de custo cadastrado';
+            option.disabled = true;
+            filtroEspecifico.appendChild(option);
+        } else {
+            centrosCusto.forEach(centro => {
+                const option = document.createElement('option');
+                option.value = centro;
+                option.textContent = centro;
+                filtroEspecifico.appendChild(option);
+            });
+        }
     }
 }
 
@@ -1182,7 +1213,12 @@ function gerarRelatorioIndividuais() {
     
     // Aplicar filtros
     if (filtro !== 'todos' && filtroEspecifico) {
-        dadosRelatorio = dadosRelatorio.filter(licenca => licenca[filtro] === filtroEspecifico);
+        if (filtro === 'centroCusto') {
+            // NOVO FILTRO: Filtrar por centro de custo
+            dadosRelatorio = dadosRelatorio.filter(licenca => licenca.centroCusto === filtroEspecifico);
+        } else {
+            dadosRelatorio = dadosRelatorio.filter(licenca => licenca[filtro] === filtroEspecifico);
+        }
     }
     
     // Aplicar ordenação
@@ -1209,7 +1245,7 @@ function gerarRelatorioIndividuais() {
         if (dadosRelatorio.length === 0) {
             corpoRelatorio.innerHTML = `
                 <tr>
-                    <td colspan="8" style="text-align: center; padding: 20px; color: #666;">
+                    <td colspan="9" style="text-align: center; padding: 20px; color: #666;">
                         Nenhuma licença individual encontrada para o filtro selecionado
                     </td>
                 </tr>
@@ -1219,12 +1255,13 @@ function gerarRelatorioIndividuais() {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${licenca.software || 'N/A'}</td>
-                    <td style="font-family: 'Courier New', monospace; font-size: 11px;">${licenca.chaveAtivacao || 'N/A'}</td>
                     <td>${licenca.usuario || 'N/A'}</td>
                     <td>${licenca.hostname || 'N/A'}</td>
                     <td>${licenca.patrimonio || 'N/A'}</td>
                     <td>${licenca.status || 'N/A'}</td>
                     <td>${licenca.numeroPedido || 'N/A'}</td>
+                    <td>${licenca.centroCusto || 'N/A'}</td>
+                    <td>${licenca.preco ? 'R$ ' + parseFloat(licenca.preco).toFixed(2) : 'N/A'}</td>
                     <td>${licenca.dataCadastro ? formatarDataParaBR(licenca.dataCadastro) : 'N/A'}</td>
                 `;
                 corpoRelatorio.appendChild(tr);
